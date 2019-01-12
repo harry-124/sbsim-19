@@ -33,6 +33,8 @@ class ball:
     def ballcallback(self,msg):
         self.xo = msg.position.x
         self.yo = msg.position.y
+        [self.xo,self.yo] = disptf(self.xo,self.yo)
+        
 
 
 class robot:
@@ -47,7 +49,7 @@ class robot:
         elif team == 2:
             self.color = [0,0,255]
         else:
-            self.color = [0,0,0]
+            self.color = [60,200,60]
 
     def refr(self):
         global screen
@@ -64,22 +66,31 @@ class robot:
     def botcallback(self,msg):
         self.xo = msg.position.x
         self.yo = msg.position.y
+        [self.xo,self.yo] = disptf(self.xo,self.yo)
 
+def disptf(x,y):
+    a = [(x+500),(380-y)]
+    return a
+
+def setuparena():
+    screen.fill((0, 0, 0))
+    pg.draw.rect(screen,[60,200,60],(20,20,960,720))
+    pg.draw.rect(screen,[0,0,255],(0,300,20,160))
+    pg.draw.rect(screen,[255,255,255],(496,0,8,760))
+    pg.draw.rect(screen,[255,0,0],(980,300,20,160))
+    pg.draw.circle(screen,[255,255,255],[500,380],80,8)
 
 def run_display():
     global screen
-    x = 30
-    y = 30
-    rects = (20,20,960,720)
     clock = pg.time.Clock()
-    team1inits = [[270,205],[270,575]]
+    team1inits = [disptf(-420,0),disptf(-100,0)]
     team2inits = [[770,205],[770,575]]
     print(clock)
     b = ball()
     r = []
     i = 0
     while(i<2):
-        r.append(robot(team1inits[i][0],team2inits[i][1],1,i))
+        r.append(robot(team1inits[i][0],team1inits[i][1],1,i))
         i =i+1
     i = 0
     while(i<2):
@@ -89,12 +100,7 @@ def run_display():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 sys.exit()        
-        screen.fill((0, 0, 0))
-        pg.draw.rect(screen,[60,200,60],rects)
-        pg.draw.rect(screen,[0,0,255],(0,352,20,56))
-        pg.draw.rect(screen,[255,255,255],(496,0,8,760))
-        pg.draw.rect(screen,[255,0,0],(980,352,20,56))
-        pg.draw.circle(screen,[255,255,255],[500,380],80,8)
+        setuparena()
         b.update()
         b.refr()
         i = 0
