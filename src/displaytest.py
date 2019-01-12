@@ -5,7 +5,7 @@ from geometry_msgs.msg import Pose
 
 def posepub():
     pub = rospy.Publisher('robot1n1/pose', Pose, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
+    rospy.init_node('tester', anonymous=True)
     pose  = Pose()
     rate = rospy.Rate(60) # 10hz
     x = 300
