@@ -16,8 +16,9 @@ class ball:
         self.ydd = ydd
         self.cr = 0.8
         self.r = 8
-        self.nu = 0.1
-        self.vthresh = 20
+        self.nu = 0.5
+        self.speed = 0
+        self.vthresh = 10
 
     def mtest(self):
         if self.xd != 0 and self.yd != 0:
@@ -37,6 +38,29 @@ class ball:
             self.xd = tmvx
         if self.ydd==0:
             self.yd = tmvy
+        self.xdd =0
+        self.ydd =0
+
+    def moveball(self):
+        if (self.xd>0):
+            self.dirx =1
+        elif (self.xd<0):
+            self.dirx =-1
+        else:
+            self.dirx =0
+        if (self.yd>0):
+            self.diry =1
+        elif (self.yd<0):
+            self.diry =-1
+        else:
+            self.diry =0
+
+        if(self.dirx ==0 and self.diry ==0):
+            self.friction()
+        elif (self.diry == 0 and self.dirx!=0):
+            self.frictionx()
+        elif (self.dirx == 0 and self.diry!=0):
+            self.frictiony()
 
     def impulse(self,acx,acy):
         self.xdd = acx
@@ -53,10 +77,10 @@ class ball:
             #self.ydd = -round((self.yd/self.speed)*nu)
             #print(self.xdd)
             #print(self.ydd)
-            self.updatestate()
+            #self.updatestate()
             #print("xd",self.xd)
             #print("yd",self.yd)
-            self.xdd = 0
+            #self.xdd = 0
             #self.ydd = 0
         else:
             self.xdd=0
@@ -71,11 +95,11 @@ class ball:
             self.ydd = -((self.yd/self.speed)*self.nu)
             #print(self.xdd)
             #print(self.ydd)
-            self.updatestate()
+            #self.updatestate()
             #print("xd",self.xd)
             #print("yd",self.yd)
             #self.xdd = 0
-            self.ydd = 0
+            #self.ydd = 0
         else:
             #self.xdd=0
             self.ydd=0
@@ -89,11 +113,11 @@ class ball:
             self.ydd = -((self.yd/self.speed)*self.nu)
             #print(self.xdd)
             #print(self.ydd)
-            self.updatestate()
+            #self.updatestate()
             #print("xd",self.xd)
             #print("yd",self.yd)
-            self.xdd = 0
-            self.ydd = 0
+            #self.xdd = 0
+            #self.ydd = 0
         else:
             self.xdd=0
             self.ydd=0
@@ -105,17 +129,19 @@ class ball:
 
 
 class robot:
-    def __init__(self,x,y,xd=0,yd=0,xdd=0,ydd=0):
+    def __init__(self,x,y,xd=0,yd=0,xdd=0,ydd=0,yaw=0):
         self.x =x
         self.y = y
         self.xd =xd
         self.yd = yd
         self.xdd = xdd
         self.ydd = ydd
+        self.theta = yaw
+        self.thetad = 0
         self.cr = 0.5
         self.r = 40
-        self.nu = 0.9
-        self.vthresh = 5
+        self.nu = 1.5
+        self.vthresh = 3
         self.dirx =0
         self.diry =0
         self.speed =0
@@ -133,6 +159,12 @@ class robot:
         self.y+=self.yd
         self.xd = self.xd + self.xdd
         self.yd = self.yd + self.ydd
+        if self.xd>self.vthresh:
+            self.xd = tmvx
+        if self.yd>self.vthresh:
+            self.yd = tmvy
+        self.theta = self.theta + self.thetad
+        self.thetad = 0
         self.speed =m.sqrt(self.xd*self.xd+self.yd*self.yd)
         if self.xdd==0:
             self.xd = tmvx
@@ -145,6 +177,9 @@ class robot:
         self.updatestate()
         self.xdd = 0
         self.ydd = 0
+
+    def rotate(self,thetad):
+        self.thetad = thetad
 
     def frictiony(self):
         self.mtest()
@@ -221,7 +256,7 @@ class robot:
         elif (self.dirx == 0 and self.diry!=0):
             self.frictiony()
 
-    def movebot(self,kx,ky):
+    def movebot(self,kx,ky,thetad=0):
         if (self.xd>0):
             self.dirx =1
         elif (self.xd<0):
@@ -234,7 +269,8 @@ class robot:
             self.diry =-1
         else:
             self.diry =0
-        
+
+        self.rotate(thetad)
         self.impulse(kx,ky)
 
         if(self.dirx ==0 and self.diry ==0):
@@ -243,6 +279,9 @@ class robot:
             self.frictionx()
         elif (self.dirx == 0 and self.diry!=0):
             self.frictiony()
+
+
+        
 
 
 
@@ -299,7 +338,10 @@ def collRb(R,b):
         vy = b.cr*(vpa*ks+vpd*kc)
         b.xd = vx + R.xd
         b.yd = vy + R.yd
+    else:
+        b.moveball()
     return [b.xd,b.yd]
+
 
 def collRR(a,b):
     if(colcheck(a,b)==1):

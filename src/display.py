@@ -2,7 +2,10 @@
 import sys
 import pygame as pg
 import rospy
+import numpy
+import tf
 from geometry_msgs.msg import Pose
+import math as m
 
 pg.init()
 screen = pg.display.set_mode((1000,760))
@@ -38,12 +41,14 @@ class ball:
 
 
 class robot:
-    def __init__(self,xp,yp,team,n):
+    def __init__(self,xp,yp,yaw=0,team=3,n=None):
         self.name = 'robot'+str(team)+'n'+str(n)+'/pose'
+        self.n = n
         self.ball_sub = rospy.Subscriber(self.name,Pose, self.botcallback)
         self.radius = 40
         self.xo = int(xp)
         self.yo = int(yp)
+        self.yaw = yaw
         if team == 1:
             self.color = [255,0,0]
         elif team == 2:
@@ -54,6 +59,11 @@ class robot:
     def refr(self):
         global screen
         pg.draw.circle(screen, self.color,[self.x,self.y],self.radius,0)
+        pg.draw.circle(screen,[0,0,0],[self.x+int(20*m.cos(self.yaw)),self.y+int(20*m.sin(self.yaw))],10,0)
+        font = pg.font.Font('freesansbold.ttf',20)
+        txtsf, txtre = text_objects(str(self.n),font)
+        txtre.center = (self.x,self.y)
+        screen.blit(txtsf,txtre)
 
     def update(self,xp=None,yp=None):
         if xp is not None and yp is not None:
@@ -66,7 +76,15 @@ class robot:
     def botcallback(self,msg):
         self.xo = msg.position.x
         self.yo = msg.position.y
+        quat = [msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w]
+        euler = tf.transformations.euler_from_quaternion(quat)
+        self.yaw = euler[2]
         [self.xo,self.yo] = disptf(self.xo,self.yo)
+
+
+def text_objects(text,font):
+    txtsurf = font.render(text,True,(0,0,0))
+    return txtsurf, txtsurf.get_rect()
 
 def disptf(x,y):
     a = [(x+500),(380-y)]
@@ -75,6 +93,7 @@ def disptf(x,y):
 def setuparena():
     screen.fill((0, 0, 0))
     pg.draw.rect(screen,[60,200,60],(20,20,960,720))
+    pg.draw.rect(screen,[255,255,255],(20,20,960,720),8)
     pg.draw.rect(screen,[0,0,255],(0,300,20,160))
     pg.draw.rect(screen,[255,255,255],(496,0,8,760))
     pg.draw.rect(screen,[255,0,0],(980,300,20,160))
@@ -90,11 +109,11 @@ def run_display():
     r = []
     i = 0
     while(i<2):
-        r.append(robot(team1inits[i][0],team1inits[i][1],1,i))
+        r.append(robot(team1inits[i][0],team1inits[i][1],team=1,n=i))
         i =i+1
     i = 0
     while(i<2):
-        r.append(robot(team2inits[i][0],team2inits[i][1],2,i))
+        r.append(robot(team2inits[i][0],team2inits[i][1],team=2,n=i))
         i =i+1
     while True:
         for event in pg.event.get():
@@ -113,4 +132,7 @@ def run_display():
 
 if __name__ == '__main__':
     rospy.init_node('displayer',anonymous=True)
-    run_display()
+    try:
+        run_display()
+    except KeyboardInterrupt:
+        exit()

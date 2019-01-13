@@ -3,7 +3,7 @@ import sys
 import physics as p
 import pygame as pg
 import rospy
-import math
+import math as m
 from geometry_msgs.msg import Pose
 
 def posepub():
@@ -23,7 +23,8 @@ def posepub():
             if event.type == pg.QUIT:
                 sys.exit()
         if (i < 10):
-            mybot.movebot(1,0)
+            mybot.movebot(1,0,0.2)
+            i =i+1
         [ball.xd,ball.yd] = p.collRb(mybot,ball)
         ball.updatestate()
         bpose.position.x = ball.x
@@ -32,11 +33,11 @@ def posepub():
         p.walleffect(ball)
         pose.position.x = mybot.x
         pose.position.y = mybot.y
+        pose.orientation.z = m.tan(mybot.theta/2)
         pose.orientation.w =1
         bpose.orientation.w =1
         pub.publish(pose)
         pubball.publish(bpose)
-        i =i+1
         rate.sleep()
 
 if __name__ == '__main__':

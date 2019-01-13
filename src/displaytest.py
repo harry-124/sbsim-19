@@ -17,6 +17,7 @@ def posepub():
         yo = y + 20*math.cos(2*3.142*ti/1000000000)
         pose.position.x = xo
         pose.position.y = yo
+        pose.orientation.z = math.tan(2*3.142*ti/2000000000)
         pose.orientation.w =1
         pub.publish(pose)
         rate.sleep()
