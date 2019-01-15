@@ -6,7 +6,7 @@ import rospy
 import math as m
 from geometry_msgs.msg import Pose
 
-def posepub(xtg,ytg,x,y):
+def posepub(xtg,ytg,x,y,bx,by):
     prod = 0.055
     kpp = 0.1
     kpv = prod/kpp
@@ -17,23 +17,21 @@ def posepub(xtg,ytg,x,y):
     rate = rospy.Rate(60)
     pg.init()
     mybot = p.robot(x=x,y=y)
-    ball = p.ball()
-    i =0
+    ball = p.ball(x = bx,y = by)
     while not rospy.is_shutdown():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 sys.exit()
         vrx = (kpp*(xtg - mybot.x))
         vry = (kpp*(ytg - mybot.y))
-        kx = (kpv*(vrx - mybot.xd))
-        ky = (kpv*(vry - mybot.yd))
-        p.walleffect(mybot)
-        p.walleffect(ball)
+        kx = (kpv*(vrx/10 - mybot.xd))
+        ky = (kpv*(vry/10- mybot.yd))
         mybot.movebot(kx,ky,thetad=0)
-        [ball.xd,ball.yd] = p.collRb(mybot,ball)
-        ball.moveball()
+        p.collRb(mybot,ball)
         bpose.position.x = ball.x
         bpose.position.y = ball.y
+        p.walleffect(mybot)
+        p.walleffect(ball)
         pose.position.x = mybot.x
         pose.position.y = mybot.y
         pose.orientation.z = m.tan(mybot.theta/2)
@@ -41,18 +39,21 @@ def posepub(xtg,ytg,x,y):
         bpose.orientation.w =1
         pub.publish(pose)
         pubball.publish(bpose)
-        if(p.dist(mybot.x,mybot.y,xtg,ytg)<10):
-            return mybot.x,mybot.y
+
+        if(p.dist(mybot.x,mybot.y,xtg,ytg)<10 and ball.speed <= 1):
+            return mybot.x,mybot.y,ball.x,ball.y
         rate.sleep()
 
 if __name__ == '__main__':
     rospy.init_node('collisiontest', anonymous=True)
     x = -100
     y = 0
+    bx =0
+    by =0
     while True:
         xtg = input('Enter x value')
         ytg = input('Enter y value')
         try:
-            x,y = posepub(xtg,ytg,x,y)
+            x,y,bx,by = posepub(xtg,ytg,x,y,bx,by)
         except rospy.ROSInterruptException:
             pass
