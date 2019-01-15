@@ -12,13 +12,14 @@ class ball:
         self.y = y
         self.xd =xd
         self.yd = yd
-        self.xdd = xdd
-        self.ydd = ydd
-        self.cr = 0.8
+        self.cr = 1
         self.r = 8
-        self.nu = 0.5
+        self.nu = 2
         self.speed = 0
-        self.vthresh = 10
+        self.vthresh = 1
+        self.mflag = 0
+        self.i = 0
+
 
     def mtest(self):
         if self.xd != 0 and self.yd != 0:
@@ -26,102 +27,31 @@ class ball:
         else:
             self.mflag = 0
 
-    def updatestate(self):
-        tmvx = self.xd
-        tmvy = self.yd
-        self.x+=self.xd
-        self.y+=self.yd
-        self.xd = self.xd + self.xdd
-        self.yd = self.yd + self.ydd
-        self.speed =m.sqrt(self.xd*self.xd+self.yd*self.yd)
-        if self.xdd==0:
-            self.xd = tmvx
-        if self.ydd==0:
-            self.yd = tmvy
-        self.xdd =0
-        self.ydd =0
-
-    def moveball(self):
-        if (self.xd>0):
-            self.dirx =1
-        elif (self.xd<0):
-            self.dirx =-1
-        else:
-            self.dirx =0
-        if (self.yd>0):
-            self.diry =1
-        elif (self.yd<0):
-            self.diry =-1
-        else:
-            self.diry =0
-
-        if(self.dirx ==0 and self.diry ==0):
-            self.friction()
-        elif (self.diry == 0 and self.dirx!=0):
-            self.frictionx()
-        elif (self.dirx == 0 and self.diry!=0):
-            self.frictiony()
-
-    def impulse(self,acx,acy):
-        self.xdd = acx
-        self.ydd = acy
-        self.updatestate()
-        self.xdd = 0
-        self.ydd = 0
-
     def frictiony(self):
         self.mtest()
         if self.speed != 0: 
-            #print(self.xd,self.yd)
-            self.xdd = -((self.xd/self.speed)*self.nu)
-            #self.ydd = -round((self.yd/self.speed)*nu)
-            #print(self.xdd)
-            #print(self.ydd)
-            #self.updatestate()
-            #print("xd",self.xd)
-            #print("yd",self.yd)
-            #self.xdd = 0
-            #self.ydd = 0
-        else:
-            self.xdd=0
-            #self.ydd=0
-            self.mtest()
+            self.xd -= (self.xd/self.speed)*self.nu
 
     def frictionx(self):
         self.mtest()
         if self.speed != 0: 
-            #print(self.xd,self.yd)
-            #self.xdd = -round((self.xd/self.speed)*nu)
-            self.ydd = -((self.yd/self.speed)*self.nu)
-            #print(self.xdd)
-            #print(self.ydd)
-            #self.updatestate()
-            #print("xd",self.xd)
-            #print("yd",self.yd)
-            #self.xdd = 0
-            #self.ydd = 0
-        else:
-            #self.xdd=0
-            self.ydd=0
-            self.mtest()
+            self.yd -= (self.yd/self.speed)
 
     def friction(self):
         self.mtest()
         if self.speed != 0: 
-            #print(self.xd,self.yd)
-            self.xdd = -((self.xd/self.speed)*self.nu)
-            self.ydd = -((self.yd/self.speed)*self.nu)
-            #print(self.xdd)
-            #print(self.ydd)
-            #self.updatestate()
-            #print("xd",self.xd)
-            #print("yd",self.yd)
-            #self.xdd = 0
-            #self.ydd = 0
-        else:
-            self.xdd=0
-            self.ydd=0
-            self.mtest()
+            self.xd -= ((self.xd/self.speed)*self.nu)
+            self.yd -= ((self.yd/self.speed)*self.nu)
+
+
+    def updatestate(self):
+        self.x += self.xd
+        self.y += self.yd
+        self.speed = m.sqrt(self.xd*self.xd + self.yd*self.yd)
+        self.i += 1
+        self.nu = self.i*self.i/100
+
+
 
         
 
@@ -159,10 +89,7 @@ class robot:
         self.y+=self.yd
         self.xd = self.xd + self.xdd
         self.yd = self.yd + self.ydd
-        if self.xd>self.vthresh:
-            self.xd = tmvx
-        if self.yd>self.vthresh:
-            self.yd = tmvy
+
         self.theta = self.theta + self.thetad
         self.thetad = 0
         self.speed =m.sqrt(self.xd*self.xd+self.yd*self.yd)
@@ -307,15 +234,15 @@ def angcso(a,b):
     return [c,s]
 
 def wallcheck(a):
-    if a.x >= 500:
+    if a.x + a.r >= 500:
         ox = 1
-    elif a.x <= -500:
+    elif a.x - a.r <= -500:
         ox = -1
     else:
         ox = 0
-    if a.y >= 380:
+    if a.y + a.y >= 380:
         oy = 1
-    elif a.y <= -380:
+    elif a.y - a.y <= -380:
         oy = -1
     else:
         oy = 0
@@ -323,24 +250,62 @@ def wallcheck(a):
 
 def colcheck(a,b):
     if disto(a,b)<=(a.r+b.r):
+        print 'aa'
         return 1
     else: return 0
 
 def collRb(R,b):
     if(colcheck(R,b)==1):
+        if (R.speed)<=5:
+            b.cr = 0.6
+        else:
+            b.cr = 1
+        if (b.speed)<=0.1:
+            b.cr = 2
+            b.i = 0
+        else:
+            b.cr = 1
         ux = R.xd - b.xd
         uy = R.yd - b.yd
         kc = (R.x-b.x)/(R.r+b.r)
         ks = (R.y-b.y)/(R.r+b.r)
-        vpa = ux*kc+uy*ks
-        vpd = ux*ks*uy*kc
+        if kc>0:
+            b.x = R.x-(R.r+b.r)*kc-1
+        elif kc<0:
+            b.x = R.x-(R.r+b.r)*kc+1
+        if ks>0:
+            b.y = R.y-(R.r+b.r)*ks+1
+        elif ks<0:
+            b.y = R.y-(R.r+b.r)*ks-1
+        
+        vpa = (ux*kc+uy*ks)
+        vpd = (ux*ks*uy*kc)
         vx = b.cr*(vpa*kc+vpd*ks)
         vy = b.cr*(vpa*ks+vpd*kc)
         b.xd = vx + R.xd
         b.yd = vy + R.yd
+        b.cr = 1
     else:
-        b.moveball()
-    return [b.xd,b.yd]
+        if (b.xd>0):
+            b.dirx =1
+        elif (b.xd<0):
+            b.dirx =-1
+        else:
+            b.dirx =0
+        if (b.yd>0):
+            b.diry =1
+        elif (b.yd<0):
+            b.diry =-1
+        else:
+            b.diry =0
+
+        if(b.dirx ==0 and b.diry ==0):
+            b.friction()
+        elif (b.diry == 0 and b.dirx!=0):
+            b.frictionx()
+        elif (b.dirx == 0 and b.diry!=0):
+            b.frictiony()  
+    b.updatestate()
 
 
 def collRR(a,b):
@@ -364,9 +329,11 @@ def collRR(a,b):
 def walleffect(a):
     [ox,oy] = wallcheck(a)
     if ox == 1 or ox == -1:
-        a.xd = -a.xd*a.cr
+        a.xd = -a.xd*0.4
+        a.x = ox*500-ox*a.r
     if oy == 1 or oy == -1:
-        a.yd = -a.yd*a.cr
+        a.yd = -a.yd*0.4
+        a.y = oy*500-oy*a.r
     return [a.xd,a.yd]
 
 
