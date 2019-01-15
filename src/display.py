@@ -36,7 +36,7 @@ class ball:
     def ballcallback(self,msg):
         self.xo = msg.position.x
         self.yo = msg.position.y
-        [self.xo,self.yo] = disptf(self.xo,self.yo)
+        [self.xo,self.yo,hi] = disptf(self.xo,self.yo,0)
         
 
 
@@ -79,15 +79,15 @@ class robot:
         quat = [msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w]
         euler = tf.transformations.euler_from_quaternion(quat)
         self.yaw = euler[2]
-        [self.xo,self.yo] = disptf(self.xo,self.yo)
+        [self.xo,self.yo,self.yaw] = disptf(self.xo,self.yo,self.yaw)
 
 
 def text_objects(text,font):
     txtsurf = font.render(text,True,(0,0,0))
     return txtsurf, txtsurf.get_rect()
 
-def disptf(x,y):
-    a = [(x+500),(380-y)]
+def disptf(x,y,theta=0):
+    a = [(x+500),(380-y),-theta]
     return a
 
 def setuparena():
@@ -102,7 +102,7 @@ def setuparena():
 def run_display():
     global screen
     clock = pg.time.Clock()
-    team1inits = [disptf(-420,0),disptf(-100,0)]
+    team1inits = [disptf(-420,0,0),disptf(-100,0,0)]
     team2inits = [[770,205],[770,575]]
     print(clock)
     b = ball()

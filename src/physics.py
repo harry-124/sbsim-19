@@ -89,8 +89,11 @@ class robot:
         self.y+=self.yd
         self.xd = self.xd + self.xdd
         self.yd = self.yd + self.ydd
-
         self.theta = self.theta + self.thetad
+        if (self.theta > 6.28):
+            self.theta -= 6.28
+        if (self.theta < 0):
+            self.theta += 6.28
         self.thetad = 0
         self.speed =m.sqrt(self.xd*self.xd+self.yd*self.yd)
         if self.xdd==0:
