@@ -59,7 +59,7 @@ class ball:
 
 
 class robot:
-    def __init__(self,x,y,xd=0,yd=0,xdd=0,ydd=0,yaw=0):
+    def __init__(self,x,y,ball,xd=0,yd=0,xdd=0,ydd=0,yaw=0):
         self.x =x
         self.y = y
         self.xd =xd
@@ -75,6 +75,8 @@ class robot:
         self.dirx =0
         self.diry =0
         self.speed =0
+        self.dribble = 0
+        self.ball = ball
 
     def mtest(self):
         if self.xd != 0 and self.yd != 0:
@@ -186,7 +188,7 @@ class robot:
         elif (self.dirx == 0 and self.diry!=0):
             self.frictiony()
 
-    def movebot(self,kx,ky,thetad=0):
+    def movebot(self,kx,ky,ball,thetad=0):
         if (self.xd>0):
             self.dirx =1
         elif (self.xd<0):
@@ -202,6 +204,13 @@ class robot:
 
         self.rotate(thetad)
         self.impulse(kx,ky)
+        if self.dribble == 1:
+            ball.xd = self.xd
+            ball.yd = self.yd
+            ball.xdd = self.xdd 
+            ball.ydd = self.ydd
+            ball.x = self.x + (self.r+ball.r)*m.cos(self.theta)
+            ball.y = self.y + (self.r+ball.r)*m.sin(self.theta)
 
         if(self.dirx ==0 and self.diry ==0):
             self.friction()
@@ -210,8 +219,23 @@ class robot:
         elif (self.dirx == 0 and self.diry!=0):
             self.frictiony()
 
+    def kick(self,ball,mag):
+        ball.xd = self.xd + mag*m.cos(self.theta)
+        ball.yd = self.yd + mag*m.sin(self.theta)
+        ball.speed = m.sqrt(ball.xd*ball.xd +ball.yd*ball.yd)
+        self.dribble = 0
+        kc = (self.x-ball.x)/(self.r+ball.r)
+        ks = (self.y-ball.y)/(self.r+ball.r)
+        if kc>0:
+            ball.x = self.x-(self.r+ball.r)*kc-2
+        elif kc<0:
+            ball.x = self.x-(self.r+ball.r)*kc+2
+        if ks>0:
+            ball.y = self.y-(self.r+ball.r)*ks+2
+        elif ks<0:
+            ball.y = self.y-(self.r+self.r)*ks-2
+        print 'ball kicked'
 
-        
 
 
 
@@ -219,6 +243,18 @@ class robot:
 
 
 
+def restricang(thtg):
+    while(thtg<0):
+        if thtg<0:
+            thtg = 6.28+thtg
+        else:
+            break
+    while(thtg>6.28):
+        if thtg>6.28:
+            thtg = thtg - 6.28
+        else:
+            break
+    return thtg
 
 def dist(x1,y1,x2,y2):
     return m.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
@@ -243,9 +279,9 @@ def wallcheck(a):
         ox = -1
     else:
         ox = 0
-    if a.y + a.y >= 380:
+    if a.y + a.r >= 380:
         oy = 1
-    elif a.y - a.y <= -380:
+    elif a.y - a.r <= -380:
         oy = -1
     else:
         oy = 0
@@ -253,42 +289,58 @@ def wallcheck(a):
 
 def colcheck(a,b):
     if disto(a,b)<=(a.r+b.r):
-        print 'aa'
         return 1
     else: return 0
 
+
 def collRb(R,b):
+    vthresh = 1
+    [c,s] = angcso(R,b)
     if(colcheck(R,b)==1):
-        if (R.speed)<=5:
-            b.cr = 0.6
+        if R.dribble == 1 or (abs(R.xd - b.xd) < vthresh and abs(R.yd - b.yd) < vthresh and c<=-0.8):
+            # dribble ball
+            R.dribble = 1
+            b.xd = 0
+            b.yd = 0
+            b.xdd = 0 
+            b.ydd = 0
+            b.x = R.x + (R.r+b.r)*m.cos(R.theta)
+            b.y = R.y + (R.r+b.r)*m.sin(R.theta)
+            print 'ball in possession'
         else:
-            b.cr = 1
-        if (b.speed)<=0.1:
-            b.cr = 2
-            b.i = 0
-        else:
-            b.cr = 1
-        ux = R.xd - b.xd
-        uy = R.yd - b.yd
-        kc = (R.x-b.x)/(R.r+b.r)
-        ks = (R.y-b.y)/(R.r+b.r)
-        if kc>0:
-            b.x = R.x-(R.r+b.r)*kc-1
-        elif kc<0:
-            b.x = R.x-(R.r+b.r)*kc+1
-        if ks>0:
-            b.y = R.y-(R.r+b.r)*ks+1
-        elif ks<0:
-            b.y = R.y-(R.r+b.r)*ks-1
+            R.dribble = 0
+            if (R.speed)<=5:
+                b.cr = 0.4
+            else:
+                b.cr = 0.6
+            if (b.speed)<=0.1:
+                b.cr = 1
+                b.i = 0
+            else:
+                b.cr = 0.6
+            ux = R.xd - b.xd
+            uy = R.yd - b.yd
+            kc = (R.x-b.x)/(R.r+b.r)
+            ks = (R.y-b.y)/(R.r+b.r)
+            if kc>0:
+                b.x = R.x-(R.r+b.r)*kc-1
+            elif kc<0:
+                b.x = R.x-(R.r+b.r)*kc+1
+            if ks>0:
+                b.y = R.y-(R.r+b.r)*ks+1
+            elif ks<0:
+                b.y = R.y-(R.r+b.r)*ks-1
         
-        vpa = (ux*kc+uy*ks)
-        vpd = (ux*ks*uy*kc)
-        vx = b.cr*(vpa*kc+vpd*ks)
-        vy = b.cr*(vpa*ks+vpd*kc)
-        b.xd = vx + R.xd
-        b.yd = vy + R.yd
-        b.cr = 1
+            vpa = (ux*kc+uy*ks)
+            vpd = (ux*ks*uy*kc)
+            vx = b.cr*(vpa*kc+vpd*ks)
+            vy = b.cr*(vpa*ks+vpd*kc)
+            b.xd = vx + R.xd
+            b.yd = vy + R.yd
+            b.cr = 1
+            b.updatestate()
     else:
+        R.dribble = 0
         if (b.xd>0):
             b.dirx =1
         elif (b.xd<0):
@@ -307,8 +359,8 @@ def collRb(R,b):
         elif (b.diry == 0 and b.dirx!=0):
             b.frictionx()
         elif (b.dirx == 0 and b.diry!=0):
-            b.frictiony()  
-    b.updatestate()
+            b.frictiony()
+        b.updatestate()  
 
 
 def collRR(a,b):
@@ -332,11 +384,11 @@ def collRR(a,b):
 def walleffect(a):
     [ox,oy] = wallcheck(a)
     if ox == 1 or ox == -1:
-        a.xd = -a.xd*0.4
+        a.xd = -a.xd*0.2
         a.x = ox*500-ox*a.r
     if oy == 1 or oy == -1:
-        a.yd = -a.yd*0.4
-        a.y = oy*500-oy*a.r
+        a.yd = -a.yd*0.2
+        a.y = oy*380-oy*a.r
     return [a.xd,a.yd]
 
 
