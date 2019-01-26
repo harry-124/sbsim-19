@@ -297,7 +297,7 @@ def collRb(R,b):
     vthresh = 1
     [c,s] = angcso(R,b)
     if(colcheck(R,b)==1):
-        if R.dribble == 1 or (abs(R.xd - b.xd) < vthresh and abs(R.yd - b.yd) < vthresh and c<=-0.8):
+        if R.dribble == 1 or (abs(R.xd - b.xd) < vthresh and abs(R.yd - b.yd) < vthresh and c<=-0.97):
             # dribble ball
             R.dribble = 1
             b.xd = 0
@@ -310,11 +310,11 @@ def collRb(R,b):
         else:
             R.dribble = 0
             if (R.speed)<=5:
-                b.cr = 0.4
+                b.cr = 0.2
             else:
-                b.cr = 0.6
+                b.cr = 0.5
             if (b.speed)<=0.1:
-                b.cr = 1
+                b.cr = 0.6
                 b.i = 0
             else:
                 b.cr = 0.6
@@ -369,10 +369,10 @@ def collRR(a,b):
         uy = a.yd - b.yd
         kc = (a.x-b.x)/(a.r+b.r)
         ks = (a.y-b.y)/(a.r+b.r)
-        vpa = 0
+        vpa = ux*kc+uy*ks
         vpd = ux*ks*uy*kc
-        vxb = b.cr(vpa*kc+vpd*ks)
-        vyb = b.cr(vpa*ks+vpd*kc)
+        vxb = 0.2*(vpa*kc+vpd*ks)
+        vyb = 0.2*(vpa*ks+vpd*kc)
         b.xd = vxb + a.xd
         b.yd = vyb + a.yd
         a.xd = vyb + a.xd

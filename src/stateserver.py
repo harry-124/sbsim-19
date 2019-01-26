@@ -6,35 +6,45 @@ import pid
 import rospy
 import math as m
 from geometry_msgs.msg import Pose, Twist
-from sbsim.msg import *
-#import controller
+from sbsim.msg import goalmsg
+import controller as c
+
+r10msg = goalmsg()
+r11msg = goalmsg()
+r20msg = goalmsg()
+r21msg = goalmsg() 
 
 gs = 0
 
-def robotpubinit(n,t):
-    namepose = 'robot'+str(n)+'n'+str(t)+'/pose'
-    nametwist = 'robot'+str(n)+'n'+str(t)+'/twist'
+def robotpubinit(t,n):
+    namepose = 'robot'+str(t)+'n'+str(n)+'/pose'
+    nametwist = 'robot'+str(t)+'n'+str(n)+'/twist'
     namepossess = 'robot'+str(t)+'n'+str(n)+'/possess'
     return rospy.Publisher(namepose,Pose, queue_size = 10)
 
 def robotsubinit():
-    rospy.Subscriber('robot1n0/ptg',Pose,r10callback)
-    rospy.Subscriber('robot1n1/ptg',Pose,r11callback)
-    rospy.Subscriber('robot2n0/ptg',Pose,r20callback)
-    rospy.Subscriber('robot2n1/ptg',Pose,r21callback)
+    rospy.Subscriber('robot1n0/ptg',goalmsg,r10callback)
+    rospy.Subscriber('robot1n1/ptg',goalmsg,r11callback)
+    rospy.Subscriber('robot2n0/ptg',goalmsg,r20callback)
+    rospy.Subscriber('robot2n1/ptg',goalmsg,r21callback)
 
 def r10callback(msg):
+    global r10msg
+    r10msg = msg
     return 0
 def r11callback(msg):
+    global r11msg
+    r11msg = msg
     return 0
 def r20callback(msg):
+    global r20msg
+    r20msg = msg
     return 0
 def r21callback(msg):
+    global r21msg
+    r21msg  = msg
     return 0    
 
-def callback(msg):
-    global gs
-    gs = msg.data
 
 #callback of subscriber to intelligence
 
@@ -54,12 +64,15 @@ def updaterpose(a,b):
 def updatebpose(a,b):
     a.position.x = b.x
     a.position.y = b.y
+    a.orientation.w = 1
 
 
 def game(t1,t2):
-    global gs
-    #add subscriber to intelligence here
-    #rospy.Subscriber('game_status',int,callback)
+    global r10msg
+    global r11msg
+    global r20msg
+    global r21msg
+    robotsubinit()
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
     pr1 = []
     pr2 = []
@@ -81,6 +94,7 @@ def game(t1,t2):
     r1.append(p.robot(x= t1[1][0],y= t1[1][1], yaw  = 0, ball = ball))
     r2.append(p.robot(x= t2[0][0],y= t2[0][1], yaw  = 3.14, ball = ball))
     r2.append(p.robot(x= t2[1][0],y= t2[1][1], yaw  = 3.14, ball = ball))
+
     rpose = [Pose(),Pose(),Pose(),Pose()]
     updatebpose(bpose,ball)
     updaterpose(rpose[0],r1[0])
@@ -88,6 +102,21 @@ def game(t1,t2):
     updaterpose(rpose[2],r2[0])
     updaterpose(rpose[3],r2[1])
     while not rospy.is_shutdown():
+        c.control(r10msg,r1[0],ball)
+        c.control(r11msg,r1[1],ball)
+        c.control(r20msg,r2[0],ball)
+        c.control(r21msg,r2[1],ball)
+        p.collRR(r1[0],r2[0])
+        p.collRR(r1[0],r2[1])
+        p.collRR(r1[0],r1[1])
+        p.collRR(r1[1],r2[0])
+        p.collRR(r1[1],r2[1])
+        p.collRR(r2[0],r2[1])
+        updatebpose(bpose,ball)
+        updaterpose(rpose[0],r1[0])
+        updaterpose(rpose[1],r1[1])
+        updaterpose(rpose[2],r2[0])
+        updaterpose(rpose[3],r2[1])
         pr1[0].publish(rpose[0])
         pr1[1].publish(rpose[1])
         pr2[0].publish(rpose[2])
