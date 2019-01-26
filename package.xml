@@ -89,6 +89,8 @@
   <build_export_depend>tf2_msgs</build_export_depend>
   <build_export_depend>tf2_py</build_export_depend>
   <build_export_depend>tf2_ros</build_export_depend>
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
   <exec_depend>amcl</exec_depend>
   <exec_depend>angles</exec_depend>
   <exec_depend>eigen_conversions</exec_depend>
