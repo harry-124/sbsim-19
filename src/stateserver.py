@@ -83,6 +83,7 @@ def game(t1,t2):
     rospy.Subscriber('game/status',Int32,rulecheck)
     robotsubinit()
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
+    rospy.Publisher('game/dribbler', Pose, queue_size=10)
     pr1 = []
     pr2 = []
     a = robotpubinit(1,0)
