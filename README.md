@@ -20,7 +20,7 @@
     * Incase of collision, bot possesing the ball given freekick <br/>
     * if ball goes out outside field of play, possesion is given to the opposition at the line. <br/>
 
-<h3> physics, controller and stateserver <h3>
+<h3> physics, controller and stateserver </h3>
     * Discrete time kinematics was used to model bot and ball. <br/>
     * Used oblique collision model with suitable coefficient of restitution and inertias for collision physics <br/>
     * Created a cascaded P controller for go to goal commands to bot <br/>
