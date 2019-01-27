@@ -15,7 +15,7 @@
 
 
 <h3> Proposed Rules For the game:</h3>
-    * Robot's ball possession is legal only for x distance travelled. (x is tbd)  
-    * If x is reached, bot must pass, shoot or kick ball and regain possession.  
-    * Incase of collision, bot possesing the ball given freekick  
-    * if ball goes out outside field of play, possesion is given to the opposition at the line.  
+    * Robot's ball possession is legal only for x distance travelled. (x is tbd) <br/>
+    * If x is reached, bot must pass, shoot or kick ball and regain possession. <br/>
+    * Incase of collision, bot possesing the ball given freekick <br/>
+    * if ball goes out outside field of play, possesion is given to the opposition at the line. <br/>
