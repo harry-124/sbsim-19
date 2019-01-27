@@ -11,6 +11,8 @@ import controller as c
 from std_msgs.msg import Int32
 from sbsim.msg import dribble
 
+d = dribble()
+
 r10msg = goalmsg()
 r11msg = goalmsg()
 r20msg = goalmsg()
@@ -19,6 +21,15 @@ r21msg = goalmsg()
 gs = 0
 
 def dribbletest(r1,r2,r3,r4):
+    global d
+    if r1.dribble == 1:
+        d.dribble[0]=1
+    elif r2.dribble == 1:
+        d.dribble[1]=1
+    elif r3.dribble == 1:
+        d.dribble[2]=1
+    elif r4.dribble == 1:
+        d.dribble[3]=1
     return 0
 
 
@@ -83,7 +94,7 @@ def game(t1,t2):
     rospy.Subscriber('game/status',Int32,rulecheck)
     robotsubinit()
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
-    rospy.Publisher('game/dribbler', Pose, queue_size=10)
+    drib = rospy.Publisher('game/dribbler', dribble, queue_size=10)
     pr1 = []
     pr2 = []
     a = robotpubinit(1,0)
@@ -132,6 +143,7 @@ def game(t1,t2):
         pr2[0].publish(rpose[2])
         pr2[1].publish(rpose[3])
         pubball.publish(bpose)
+        drib.publish(d)
         rate.sleep()
 
 

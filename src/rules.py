@@ -7,6 +7,7 @@ import rospy
 import math as m
 from geometry_msgs.msg import Pose, Twist
 from sbsim.msg import goalmsg
+from sbsim.msg import dribble
 import controller as c
 from std_msgs.msg import Int32
 
@@ -14,13 +15,26 @@ r10 = Pose()
 r11 = Pose()
 r20 = Pose()
 r21 = Pose()
+ball = Pose()
+d =  dribble()
 
 
-def robotsubinit():
+def subinit():
+    rospy.Subscriber('ballpose',Pose,ballcallback)
     rospy.Subscriber('robot1n0/pose',Pose,r10callback)
     rospy.Subscriber('robot1n1/pose',Pose,r11callback)
     rospy.Subscriber('robot2n0/pose',Pose,r20callback)
     rospy.Subscriber('robot2n1/pose',Pose,r21callback)
+    rospy.Subscriber('game/dribbler',dribble,dcallback)
+
+
+def dcallback(msg):
+    return 0
+
+def ballcallback(msg):
+    global ball
+    ball = msg
+    return 0
 
 def r10callback(msg):
     global r10
