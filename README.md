@@ -10,9 +10,9 @@
 <br>
 <h2> Work done </h2>
 
-<p>
-![Node structure](sbnode.jpeg)
-</p>
+
+![Alt](sbnode.jpeg "Node structure")
+
 
 <h3> Proposed Rules For the game:</h3>
     * Robot's ball possession is legal only for x distance travelled. (x is tbd)
