@@ -8,6 +8,8 @@ import math as m
 from geometry_msgs.msg import Pose, Twist
 from sbsim.msg import goalmsg
 import controller as c
+from std_msgs.msg import Int32
+from sbsim.msg import dribble
 
 r10msg = goalmsg()
 r11msg = goalmsg()
@@ -15,6 +17,10 @@ r20msg = goalmsg()
 r21msg = goalmsg() 
 
 gs = 0
+
+def dribbletest(r1,r2,r3,r4):
+    return 0
+
 
 def robotpubinit(t,n):
     namepose = 'robot'+str(t)+'n'+str(n)+'/pose'
@@ -66,12 +72,15 @@ def updatebpose(a,b):
     a.position.y = b.y
     a.orientation.w = 1
 
+def rulecheck():
+    return 0
 
 def game(t1,t2):
     global r10msg
     global r11msg
     global r20msg
     global r21msg
+    rospy.Subscriber('game/status',Int32,rulecheck)
     robotsubinit()
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
     pr1 = []
