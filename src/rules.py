@@ -27,7 +27,7 @@ def subinit():
     rospy.Subscriber('robot2n0/pose',Pose,r20callback)
     rospy.Subscriber('robot2n1/pose',Pose,r21callback)
     rospy.Subscriber('game/dribdist',Float64,ddcallback)
-    rospy.Subscriber('game/dribbler',dribble,drcallback)
+    rospy.Subscriber('game/dribbler',Int32,drcallback)
 
 def boundcheck(a):
     dir = [0,0]
