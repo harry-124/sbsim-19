@@ -9,27 +9,30 @@ from geometry_msgs.msg import Pose, Twist
 from sbsim.msg import goalmsg
 import controller as c
 from std_msgs.msg import Int32
+from std_msgs.msg import Float64
 from sbsim.msg import dribble
 
-d = dribble()
+d = 0
 
 r10msg = goalmsg()
 r11msg = goalmsg()
 r20msg = goalmsg()
 r21msg = goalmsg() 
 
-gs = 0
+gs = Int32()
 
 def dribbletest(r1,r2,r3,r4):
     global d
     if r1.dribble == 1:
-        d.dribble[0]=1
+        d = 1
     elif r2.dribble == 1:
-        d.dribble[1]=1
+        d = 2
     elif r3.dribble == 1:
-        d.dribble[2]=1
+        d = 3
     elif r4.dribble == 1:
-        d.dribble[3]=1
+        d = 4
+    else:
+        d =0
     return 0
 
 
@@ -49,19 +52,21 @@ def r10callback(msg):
     global r10msg
     r10msg = msg
     return 0
+
 def r11callback(msg):
     global r11msg
     r11msg = msg
     return 0
+
 def r20callback(msg):
     global r20msg
     r20msg = msg
     return 0
+
 def r21callback(msg):
     global r21msg
     r21msg  = msg
     return 0    
-
 
 #callback of subscriber to intelligence
 
@@ -76,6 +81,8 @@ def updaterpose(a,b):
     a.position.y = b.y
     a.orientation.z = m.tan(b.theta/2)
     a.orientation.w = 1
+    if b.distdribbled != 0:
+        return b.distdribbled
 
 
 def updatebpose(a,b):
@@ -83,18 +90,26 @@ def updatebpose(a,b):
     a.position.y = b.y
     a.orientation.w = 1
 
-def rulecheck():
+def rulecheck(msg):
+    global gs
+    gs = msg
+    if gs == 1:
+        print 'out of bounds'
     return 0
+
+
 
 def game(t1,t2):
     global r10msg
     global r11msg
     global r20msg
     global r21msg
+    global d
     rospy.Subscriber('game/status',Int32,rulecheck)
     robotsubinit()
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
-    drib = rospy.Publisher('game/dribbler', dribble, queue_size=10)
+    drib = rospy.Publisher('game/dribbler', Int32, queue_size=10)
+    yis = rospy.Publisher('game/dribdist', Float64, queue_size=10)
     pr1 = []
     pr2 = []
     a = robotpubinit(1,0)
@@ -133,11 +148,15 @@ def game(t1,t2):
         p.collRR(r1[1],r2[0])
         p.collRR(r1[1],r2[1])
         p.collRR(r2[0],r2[1])
+        dribbletest(r1[0],r1[1],r2[0],r2[1])
         updatebpose(bpose,ball)
-        updaterpose(rpose[0],r1[0])
-        updaterpose(rpose[1],r1[1])
-        updaterpose(rpose[2],r2[0])
-        updaterpose(rpose[3],r2[1])
+        x1 = updaterpose(rpose[0],r1[0])
+        x2 = updaterpose(rpose[1],r1[1])
+        x3 = updaterpose(rpose[2],r2[0])
+        x4 = updaterpose(rpose[3],r2[1])
+        x = [x1,x2,x3,x4]
+        y = max(x)
+        yis.publish(y)
         pr1[0].publish(rpose[0])
         pr1[1].publish(rpose[1])
         pr2[0].publish(rpose[2])

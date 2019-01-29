@@ -11,6 +11,9 @@ class ball:
         self.x =x
         self.y = y
         self.xd =xd
+    global r21
+    r21 = msg
+    return 0
         self.yd = yd
         self.cr = 1
         self.r = 8
@@ -29,7 +32,7 @@ class ball:
 
     def frictiony(self):
         self.mtest()
-        if self.speed != 0: 
+        if self.speed != 0:
             self.xd -= (self.xd/self.speed)*self.nu
 
     def frictionx(self):
@@ -77,6 +80,7 @@ class robot:
         self.speed =0
         self.dribble = 0
         self.ball = ball
+        self.distdribbled = 0
 
     def mtest(self):
         if self.xd != 0 and self.yd != 0:
@@ -102,6 +106,8 @@ class robot:
             self.xd = tmvx
         if self.ydd==0:
             self.yd = tmvy
+        if self.dribble == 1:
+            self.distdribbled+=self.speed
 
     def impulse(self,acx,acy):
         self.xdd = acx
@@ -308,6 +314,7 @@ def collRb(R,b):
             b.y = R.y + (R.r+b.r)*m.sin(R.theta)
             print 'ball in possession'
         else:
+            R.distdribbled = 0
             R.dribble = 0
             if (R.speed)<=5:
                 b.cr = 0.2
@@ -340,6 +347,7 @@ def collRb(R,b):
             b.cr = 1
             b.updatestate()
     else:
+        R.distdribbled = 0
         R.dribble = 0
         if (b.xd>0):
             b.dirx =1
