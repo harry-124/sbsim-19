@@ -9,7 +9,7 @@ from geometry_msgs.msg import Pose, Twist
 from sbsim.msg import goalmsg
 
 
-def control(gmsg,robot,ball):
+def control(gmsg,robot,ball,gs):
     mybotpid = pid.pid(x=robot.x,y=robot.y,ball = ball,angle=robot.theta)
     if gmsg.status == 1:
         mybotpid.gtg(gmsg.posetogo.position.x,gmsg.posetogo.position.y,robot,ball,thtg=2*m.atan(gmsg.posetogo.orientation.z))
@@ -23,8 +23,9 @@ def control(gmsg,robot,ball):
             p.collRb(robot,ball)
             p.walleffect(robot)
             p.walleffect(ball)
-    if abs(robot.x - gmsg.posetogo.position.x)<2 and abs(robot.y - gmsg.posetogo.position.y)<2 and abs(robot.theta - 2*m.atan(gmsg.posetogo.orientation.z)):
+    if abs(robot.x - gmsg.posetogo.position.x)<2 and abs(robot.y - gmsg.posetogo.position.y)<2 and abs(robot.theta - 2*m.atan(gmsg.posetogo.orientation.z)) or gs ==2 or gs == 3:
         gmsg.status = 0 
+    
 
 
         

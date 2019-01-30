@@ -2,5 +2,6 @@
 
   <node pkg="sbsim" name="displayer" type="display.py" output = "screen"/>
   <node pkg="sbsim" name="stateserver" type="stateserver.py" output = "screen"/>
+  <node pkg="sbsim" name="rules" type="rules.py" output = "screen"/>
 
 </launch>

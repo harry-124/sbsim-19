@@ -20,6 +20,7 @@ ball = Pose()
 d =  dribble()
 
 
+
 def subinit():
     rospy.Subscriber('ballpose',Pose,ballcallback)
     rospy.Subscriber('robot1n0/pose',Pose,r10callback)
@@ -127,6 +128,7 @@ if __name__ == '__main__':
             if b.x<-470 and b.y<80 and b.y>-80:
                 print 'goal for team 2'
                 f = 3
-            if 
+
         statuspub.publish(f)
+        f = 0
         rate.sleep()

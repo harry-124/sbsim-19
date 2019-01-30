@@ -19,7 +19,7 @@ r11msg = goalmsg()
 r20msg = goalmsg()
 r21msg = goalmsg() 
 
-gs = Int32()
+gs = 0
 
 def dribbletest(r1,r2,r3,r4):
     global d
@@ -92,12 +92,17 @@ def updatebpose(a,b):
 
 def rulecheck(msg):
     global gs
-    gs = msg
-    if gs == 1:
-        print 'out of bounds'
+    gs = msg.data
     return 0
 
-
+def reset(t1,t2,r1,r2,r3,r4,ball):
+    global gs
+    r1 = p.robot(x= t1[0][0],y= t1[0][1], yaw  = 0, ball = ball)
+    r2 = p.robot(x= t1[1][0],y= t1[1][1], yaw  = 0, ball = ball)
+    r3 = p.robot(x= t2[0][0],y= t2[0][1], yaw  = 3.14, ball = ball)
+    r4 = p.robot(x= t2[1][0],y= t2[1][1], yaw  = 3.14, ball = ball)
+    ball = p.ball(x = 0,y = 0)
+    gs = 0
 
 def game(t1,t2):
     global r10msg
@@ -105,6 +110,7 @@ def game(t1,t2):
     global r20msg
     global r21msg
     global d
+    global gs
     rospy.Subscriber('game/status',Int32,rulecheck)
     robotsubinit()
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
@@ -120,50 +126,60 @@ def game(t1,t2):
     pr2.append(a)
     a = robotpubinit(2,1)
     pr2.append(a)
-    ball = p.ball(x = 0,y = 0)
-    bpose = Pose()
     btwist = Twist()
     rate = rospy.Rate(60)
-    r1 = []
-    r2 = []
-    r1.append(p.robot(x= t1[0][0],y= t1[0][1], yaw  = 0, ball = ball))
-    r1.append(p.robot(x= t1[1][0],y= t1[1][1], yaw  = 0, ball = ball))
-    r2.append(p.robot(x= t2[0][0],y= t2[0][1], yaw  = 3.14, ball = ball))
-    r2.append(p.robot(x= t2[1][0],y= t2[1][1], yaw  = 3.14, ball = ball))
+    while True:
+        ball = p.ball(x = 0,y = 0)
+        bpose = Pose()
+        r1 = []
+        r2 = []
+        r1.append(p.robot(x= t1[0][0],y= t1[0][1], yaw  = 0, ball = ball))
+        r1.append(p.robot(x= t1[1][0],y= t1[1][1], yaw  = 0, ball = ball))
+        r2.append(p.robot(x= t2[0][0],y= t2[0][1], yaw  = 3.14, ball = ball))
+        r2.append(p.robot(x= t2[1][0],y= t2[1][1], yaw  = 3.14, ball = ball))
 
-    rpose = [Pose(),Pose(),Pose(),Pose()]
-    updatebpose(bpose,ball)
-    updaterpose(rpose[0],r1[0])
-    updaterpose(rpose[1],r1[1])
-    updaterpose(rpose[2],r2[0])
-    updaterpose(rpose[3],r2[1])
-    while not rospy.is_shutdown():
-        c.control(r10msg,r1[0],ball)
-        c.control(r11msg,r1[1],ball)
-        c.control(r20msg,r2[0],ball)
-        c.control(r21msg,r2[1],ball)
-        p.collRR(r1[0],r2[0])
-        p.collRR(r1[0],r2[1])
-        p.collRR(r1[0],r1[1])
-        p.collRR(r1[1],r2[0])
-        p.collRR(r1[1],r2[1])
-        p.collRR(r2[0],r2[1])
-        dribbletest(r1[0],r1[1],r2[0],r2[1])
+        rpose = [Pose(),Pose(),Pose(),Pose()]
         updatebpose(bpose,ball)
-        x1 = updaterpose(rpose[0],r1[0])
-        x2 = updaterpose(rpose[1],r1[1])
-        x3 = updaterpose(rpose[2],r2[0])
-        x4 = updaterpose(rpose[3],r2[1])
-        x = [x1,x2,x3,x4]
-        y = max(x)
-        yis.publish(y)
+        updaterpose(rpose[0],r1[0])
+        updaterpose(rpose[1],r1[1])
+        updaterpose(rpose[2],r2[0])
+        updaterpose(rpose[3],r2[1])
         pr1[0].publish(rpose[0])
         pr1[1].publish(rpose[1])
         pr2[0].publish(rpose[2])
         pr2[1].publish(rpose[3])
         pubball.publish(bpose)
-        drib.publish(d)
-        rate.sleep()
+        while not rospy.is_shutdown():
+            if gs == 0:
+                c.control(r10msg,r1[0],ball,gs)
+                c.control(r11msg,r1[1],ball,gs)
+                c.control(r20msg,r2[0],ball,gs)
+                c.control(r21msg,r2[1],ball,gs)
+                p.collRR(r1[0],r2[0])
+                p.collRR(r1[0],r2[1])
+                p.collRR(r1[0],r1[1])
+                p.collRR(r1[1],r2[0])
+                p.collRR(r1[1],r2[1])
+                p.collRR(r2[0],r2[1])
+                dribbletest(r1[0],r1[1],r2[0],r2[1])
+            else:
+                break
+            dribbletest(r1[0],r1[1],r2[0],r2[1])
+            updatebpose(bpose,ball)
+            x1 = updaterpose(rpose[0],r1[0])
+            x2 = updaterpose(rpose[1],r1[1])
+            x3 = updaterpose(rpose[2],r2[0])
+            x4 = updaterpose(rpose[3],r2[1])
+            x = [x1,x2,x3,x4]
+            y = max(x)
+            yis.publish(y)
+            pr1[0].publish(rpose[0])
+            pr1[1].publish(rpose[1])
+            pr2[0].publish(rpose[2])
+            pr2[1].publish(rpose[3])
+            pubball.publish(bpose)
+            drib.publish(d)
+            rate.sleep()
 
 
 

@@ -11,9 +11,6 @@ class ball:
         self.x =x
         self.y = y
         self.xd =xd
-    global r21
-    r21 = msg
-    return 0
         self.yd = yd
         self.cr = 1
         self.r = 8
