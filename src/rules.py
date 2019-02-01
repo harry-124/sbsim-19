@@ -30,6 +30,8 @@ def subinit():
     rospy.Subscriber('game/dribdist',Float64,ddcallback)
     rospy.Subscriber('game/dribbler',Int32,drcallback)
 
+    
+
 def boundcheck(a):
     dir = [0,0]
 
@@ -102,7 +104,7 @@ def updaterpose(a,b):
 if __name__ == '__main__':
     rospy.init_node('rules',anonymous=True)
     statuspub = rospy.Publisher('game/status', Int32, queue_size=10)
-    rate = rospy.Rate(60)
+    rate = rospy.Rate(30)
     subinit()
     b = p.ball(x = ball.position.x,y = ball.position.y)
     r1 = p.robot(x =0 ,y =0,yaw =0 ,ball =b)
