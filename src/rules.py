@@ -115,7 +115,9 @@ if __name__ == '__main__':
     updaterpose(r11,r2)
     updaterpose(r20,r3)
     updaterpose(r21,r4)
+    i = 0
     while(True):
+        i = i+1
         b.x = ball.position.x 
         b.y = ball.position.y 
         updaterpose(r10,r1)
@@ -130,7 +132,6 @@ if __name__ == '__main__':
             if b.x<-470 and b.y<80 and b.y>-80:
                 print 'goal for team 2'
                 f = 3
-
         statuspub.publish(f)
         f = 0
         rate.sleep()

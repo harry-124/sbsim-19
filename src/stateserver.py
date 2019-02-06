@@ -96,6 +96,11 @@ def updaterpose(a,b):
     if b.distdribbled != 0:
         return b.distdribbled
 
+def updatebtwist(a,b):
+    a.linear.x = b.xd
+    a.linear.y = b.yd
+    a.linear.z = 0
+    
 
 def updatebpose(a,b):
     a.position.x = b.x
@@ -131,6 +136,7 @@ def game(t1,t2):
     rospy.Subscriber('game/status',Int32,rulecheck)
     robotsubinit()
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
+    pubbtwist = rospy.Publisher('balltwist', Twist, queue_size=10)
     drib = rospy.Publisher('game/dribbler', Int32, queue_size=10)
     yis = rospy.Publisher('game/dribdist', Float64, queue_size=10)
     pr1 = []
@@ -157,6 +163,7 @@ def game(t1,t2):
 
         rpose = [Pose(),Pose(),Pose(),Pose()]
         updatebpose(bpose,ball)
+        updatebtwist(btwist,ball)
         updaterpose(rpose[0],r1[0])
         updaterpose(rpose[1],r1[1])
         updaterpose(rpose[2],r2[0])
@@ -179,8 +186,8 @@ def game(t1,t2):
                 p.collRR(r1[1],r2[1])
                 p.collRR(r2[0],r2[1])
                 dribbletest(r1[0 ],r1[1],r2[0],r2[1])
-                dribbletest(r1[0],r1[1],r2[0],r2[1])
                 updatebpose(bpose,ball)
+                updatebtwist(btwist,ball)
                 x1 = updaterpose(rpose[0],r1[0])
                 x2 = updaterpose(rpose[1],r1[1])
                 x3 = updaterpose(rpose[2],r2[0])
@@ -197,11 +204,13 @@ def game(t1,t2):
                 pr2[0].publish(rpose[2])
                 pr2[1].publish(rpose[3])
                 pubball.publish(bpose)
+                pubbtwist.publish(btwist)
                 drib.publish(d)
                 rate.sleep()
             else:
                 dribbletest(r1[0],r1[1],r2[0],r2[1])
                 updatebpose(bpose,ball)
+                updatebtwist(btwist,ball)
                 x1 = updaterpose(rpose[0],r1[0])
                 x2 = updaterpose(rpose[1],r1[1])
                 x3 = updaterpose(rpose[2],r2[0])
@@ -218,6 +227,7 @@ def game(t1,t2):
                 pr2[0].publish(rpose[2])
                 pr2[1].publish(rpose[3])
                 pubball.publish(bpose)
+                pubbtwist.publish(btwist)
                 drib.publish(d)
                 rate.sleep()
                 break
@@ -233,15 +243,18 @@ if __name__ == '__main__':
     print 'Select Formation for team 2'
     print '1. Striker + Defender'
     print '2. Dynamic Duo'
+    print '3. Soyboy + GK'
     b = input('Enter 1 or 2')
     if a == 1: 
         posa = [[-50,0],[-250,0]]
-    else:
+    elif a == 2:
         posa = [[-125,100],[-125,-100]]
     if b == 1:
         posb = [[50,0],[250,0]]
-    else:
+    elif b == 2:
         posb = [[125,100],[125,-100]]
+    else:
+        posb = [[125,240],[400,0]]
     try:
         game(posa,posb)
     except rospy.ROSInterruptException:
