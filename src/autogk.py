@@ -95,6 +95,7 @@ def summa():
                 else:
                     m0 = (ball.y-robot.y)/(ball.x-robot.x)
                 th = m.atan(m0)
+                th = 3.14 + th
                 q = m.tan(th/2)
                 k = 420
                 xb= ball.x
@@ -102,7 +103,6 @@ def summa():
                 xtg = k
                 ytg = m0*(k-xb)+yb
                 if abs(ytg)>=400:
-                    print 'out'
                     ytg = 0
                 r.posetogo.position.x = xtg
                 r.posetogo.position.y = ytg

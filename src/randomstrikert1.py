@@ -47,7 +47,7 @@ def summa():
     b = rnd.randint(1,80)
     n = a*b
     r.posetogo.position.y = n
-    r.posetogo.orientation.z = 0
+    r.posetogo.orientation.z = -a*m.sin(b/200.0)
     r.posetogo.orientation.w = 1
     r.status = 2
     r1.publish(r)
