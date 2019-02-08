@@ -69,6 +69,7 @@ add_message_files(
   FILES
   goalmsg.msg
   dribble.msg
+  dirvect.msg
   )
 
 ## Generate services in the 'srv' folder
