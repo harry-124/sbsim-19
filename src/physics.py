@@ -382,7 +382,16 @@ def collRR(a,b):
         b.yd = vyb + a.yd
         a.xd = vyb + a.xd
         a.yd = vxb + a.yd
-
+        kc = (a.x-b.x)/(a.r+b.r)
+        ks = (a.y-b.y)/(a.r+b.r)
+        if kc>0:
+            b.x = a.x-(a.r+b.r)*kc-1
+        elif kc<0:
+            b.x = a.x-(a.r+b.r)*kc+1
+        if ks>0:
+            b.y = a.y-(a.r+b.r)*ks+1
+        elif ks<0:
+            b.y = a.y-(a.r+b.r)*ks-1
     return [a.xd,a.yd,b.xd,b.yd]
 
 
