@@ -87,9 +87,7 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES std_msgs geometry_msgs
- )
+generate_messages(DEPENDENCIES geometry_msgs std_msgs)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -121,10 +119,8 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
   LIBRARIES sbsim
   CATKIN_DEPENDS message_runtime amcl angles eigen_conversions eigen_stl_containers filters geometric_shapes geometry_msgs random_numbers roscpp rospy std_msgs tf tf2 tf_conversions tf2_eigen tf2_geometry_msgs tf2_kdl tf2_msgs tf2_py tf2_ros
-  DEPENDS system_lib
 )
 
 ###########
