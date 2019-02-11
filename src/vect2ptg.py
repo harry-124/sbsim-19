@@ -83,12 +83,14 @@ def findgoal(v,robot):
         go.status = 1
         return go 
     else:
+        qz = m.tan(v.ptheta/2)
         po = Pose()
         po.position.x = robot.x
         po.position.y = robot.y
         po.orientation.w = 1
+        po.orientation.z = qz
         go.posetogo = po
-        go.status = 0
+        go.status = 1
         return go 
         return go
 
