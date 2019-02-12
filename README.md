@@ -11,7 +11,7 @@
 <h2> Work done </h2>
 
 
-![Alt](sbnode.jpeg "Node structure")
+![Alt](sbsim.png "Node structure")
 
 
 <h3> Proposed Rules For the game:</h3>
