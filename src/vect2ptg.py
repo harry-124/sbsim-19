@@ -92,7 +92,6 @@ def findgoal(v,robot):
         go.posetogo = po
         go.status = 1
         return go 
-        return go
 
 
 
