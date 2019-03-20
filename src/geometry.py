@@ -64,31 +64,39 @@ def potwalls(pt):
 
     return lbda*potf
 
-def findmingrad(own,op1,op2,te1,goal):
+def findmingrad(own,op1,op2,te1,goal,ango):
     #print goal.x
     #print goal.y
     #print own.x,own.y,op1.x,op1.y,op2.x,op2.y,te1.x,te1.y
-    mini = 1000000000000000
+    if own.x == op1.x and own.y == op1.y:
+        return 50
+    if own.x == op2.x and own.y == op2.y:
+        return 50
+    mini = 1000000000000000 
     ang = float('nan')
-    for i in range(101):
-        theta = i*2*3.14/100
+    for i in range(10):
+        theta = i*2*m.pi/10
         pt = point(0,0)
-        pt.x = own.x + 40*m.cos(theta)
-        pt.y = own.y + 40*m.sin(theta)
-        potw = potwalls(pt)
+        pt.x = own.x + 5*m.cos(theta)
+        pt.y = own.y + 5*m.sin(theta)
+        #potw = potwalls(pt)
         #print potw
-        pot1 = findpot(pt,op1,50)
+        pot1 = findpot(pt,op1,100)
         #print pot1
-        pot2 = findpot(pt,op2,50)
+        pot2 = findpot(pt,op2,100)
         #print pot2
         gpot = findpot(goal,pt,-30)
         #print gpot
         potf = -gpot + pot1 + pot2
         if (potf < mini):
             mini = potf
-            ang = theta
-    #print 'ang',ang
-    return ang+3.14
+            ang = theta + m.pi 
+    return ango,ang,potf
+    """else:
+        print 'else'
+        ango = angb(pt,goal)
+        return ango,angb(pt,goal)
+    #print 'ang',ang"""
 
 def findpot(pt1,pt2,q):
     d = distb(pt1,pt2)
@@ -105,12 +113,12 @@ def distb(p1,p2):
     return m.sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y))
 
 def angb(p1,p2):
-    c = p2.x-p1.X
+    c = p2.x-p1.x
     c /= distb(p1,p2)
     s = p2.y - p1.y
     s /= distb(p1,p2)
     ang = m.atan2(s,c)
-    return -ang
+    return ang
 
 class vect:
     def __init__(self,d1,d2): #angle from d1 to d2
