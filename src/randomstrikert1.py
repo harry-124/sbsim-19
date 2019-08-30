@@ -27,6 +27,7 @@ def summa():
     r1 = rospy.Publisher('robot1n0/ptg',goalmsg, queue_size = 10)
     rospy.Subscriber('robot1n0/reached',Int32,callback)
     rate = rospy.Rate(0.5)
+    rate2 = rospy.Rate(50)
     r = goalmsg()
     rate.sleep()
     r.posetogo.position.x = 50
@@ -51,6 +52,11 @@ def summa():
     r.posetogo.orientation.w = 1
     r.status = 2
     r1.publish(r)
+    rate.sleep()
+    rate.sleep()
+    rate.sleep()
+    rate.sleep()
+    rate.sleep()
     rate.sleep()
 
 
