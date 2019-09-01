@@ -30,34 +30,33 @@ def summa():
     rate2 = rospy.Rate(50)
     r = goalmsg()
     rate.sleep()
-    r.posetogo.position.x = 50
-    r.posetogo.orientation.w = 1
-    r.status = 1
-    r1.publish(r)
-    rate.sleep()
-    r.posetogo.position.x = 150
-    r.posetogo.orientation.w = 1
-    r.status = 1
-    r1.publish(r)
-    rate.sleep()
-    flag = 1
-    r.posetogo.position.x = 250
-    a = rnd.randint(1,2)
-    if a == 2:
-        a = -1
-    b = rnd.randint(1,80)
-    n = a*b
-    r.posetogo.position.y = n
-    r.posetogo.orientation.z = -a*m.sin(b/200.0)
-    r.posetogo.orientation.w = 1
-    r.status = 2
-    r1.publish(r)
     rate.sleep()
     rate.sleep()
-    rate.sleep()
-    rate.sleep()
-    rate.sleep()
-    rate.sleep()
+    while(True):
+        r.posetogo.position.x = 50
+        r.posetogo.orientation.w = 1
+        r.status = 1
+        r1.publish(r)
+        rate.sleep()
+        r.posetogo.position.x = 150
+        r.posetogo.orientation.w = 1
+        r.status = 1
+        r1.publish(r)
+        rate.sleep()
+        flag = 1
+        r.posetogo.position.x = 250
+        a = rnd.randint(1,2)
+        if a == 2:
+            a = -1
+        b = rnd.randint(1,80)
+        n = a*b
+        r.posetogo.position.y = n
+        r.posetogo.orientation.z = -a*m.sin(b/200.0)
+        r.posetogo.orientation.w = 1
+        r.status = 2
+        r1.publish(r)
+        rate.sleep()
+        rate.sleep()
 
 
 

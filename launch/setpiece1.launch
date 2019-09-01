@@ -1,0 +1,9 @@
+<launch>
+
+  <node pkg="sbsim" name="displayer" type="display.py" output = "screen"/>
+  <node pkg="sbsim" name="stateserver1" type="stateserver.py" output = "screen"/>
+  <node pkg="sbsim" name="rules" type="rules.py" output = "screen"/>
+  <node pkg="sbsim" name="autogk" type="autogk.py" output = "screen"/>
+  <node pkg="sbsim" name="striker" type="randomstrikert1.py" output = "screen"/>
+  
+</launch>
