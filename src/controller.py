@@ -20,7 +20,7 @@ def control(gmsg,robot,ball):
         if abs(robot.x - gmsg.posetogo.position.x)<20 and abs(robot.y - gmsg.posetogo.position.y)<20 and abs(robot.theta - 2*m.atan(gmsg.posetogo.orientation.z))< 1:
             if gmsg.status == 2:
                 print('ball kicked')
-                robot.kick(ball,3)
+                robot.kick(ball,1)
                 gmsg.status = 0
         mybotpid.gtg(gmsg.posetogo.position.x,gmsg.posetogo.position.y,robot,ball,thtg=th)
         if robot.dribble == 0:

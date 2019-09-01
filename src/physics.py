@@ -39,38 +39,38 @@ class ball:
 
 
     def mtest(self):
-    """
-    deprecated
-    tests if ball is in motion or not
-    """
+        """
+        deprecated
+        tests if ball is in motion or not
+        """
         if self.xd != 0 and self.yd != 0:
             self.mflag = 1
         else:
             self.mflag = 0
 
     def frictiony(self):
-    """
-    deprecated
+        """
+        deprecated
 
-    """
+        """
         self.mtest()
         if self.speed != 0:
             self.xd -= (self.xd/self.speed)*self.nu
 
     def frictionx(self):
-    """
-    deprecated
+        """
+        deprecated
 
-    """
+        """
         self.mtest()
         if self.speed != 0: 
             self.yd -= (self.yd/self.speed)
 
     def friction(self):
-    """
-    deprecated
+        """
+        deprecated
 
-    """
+        """
         self.mtest()
         if self.speed != 0: 
             self.xd -= ((self.xd/self.speed)*self.nu)
@@ -78,12 +78,12 @@ class ball:
 
 
     def updatestate(self):
-    """
-    performs the equations of motion onto the ball in discrete sense
-    no acceleration and no friction (can be addded later)
+        """
+        performs the equations of motion onto the ball in discrete sense
+        no acceleration and no friction (can be addded later)
 
-    updates state variables x and y
-    """
+        updates state variables x and y
+        """
         self.x += self.xd
         self.y += self.yd
         self.speed = m.sqrt(self.xd*self.xd + self.yd*self.yd)
@@ -256,9 +256,9 @@ class robot:
             self.mtest()
 
     def teleop(self,dir,k=0):
-    """
-    deprecated (old keyboard command based controls)
-    """
+        """
+        deprecated (old keyboard command based controls)
+        """
         if(dir[0]==1 or dir[1]==1 or dir[2]==1 or dir[3]==1):
             if dir[0]==1:
                 self.impulse(0,k)
@@ -326,13 +326,13 @@ class robot:
         ks = (self.y-ball.y)/(self.r+ball.r)
         if kc>0:
             ball.x = self.x-(self.r+ball.r)*kc-2
-        elif kc<0:
+        elif kc < 0:
             ball.x = self.x-(self.r+ball.r)*kc+2
-        if ks>0:
-            ball.y = self.y-(self(.r+ball.r)*ks+2
-        elif ks<0:
+        if ks > 0:
+            ball.y = self.y-(self.r+ball.r)*ks+2
+        elif ks < 0:
             ball.y = self.y-(self.r+self.r)*ks-2
-        print 'ball kicked'
+        #print 'ball kicked'
 
 
 
@@ -342,9 +342,9 @@ class robot:
 
 
 def restricang(thtg):
-"""
-0 to 2pi range restriction of angle
-"""
+    """
+    0 to 2pi range restriction of angle
+    """
     while(thtg<0):
         if thtg<0:
             thtg = 6.28+thtg
@@ -431,7 +431,7 @@ def collRb(R,b):
             b.ydd = 0
             b.x = R.x + (R.r+b.r)*m.cos(R.theta)
             b.y = R.y + (R.r+b.r)*m.sin(R.theta)
-            print 'ball in possession'
+            #print 'ball in possession'
         else:
             R.distdribbled = 0
             R.dribble = 0
