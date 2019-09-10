@@ -3,8 +3,8 @@ import physics as p
 class pid:
     def __init__(self,x,y,angle,ball):
         self.bot = p.robot(x=x,y=y,ball = ball,yaw=angle)
-        prod = 0.055
-        self.kpp = 0.1
+        prod = 0.10
+        self.kpp = 0.3
         self.kpv = prod/self.kpp
         self.kpr = 0.02
 
