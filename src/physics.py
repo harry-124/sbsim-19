@@ -32,24 +32,67 @@ class ball:
         self.yd = yd
         self.cr = 1
         self.r = 5.67
-        self.nu = 2
+        self.nu = 1
         self.speed = 0
         self.vthresh = 1
         self.mflag = 0
         self.i = 0
 
-    def updatestate(self):
+    def updatestate(self,d):
         """
+        d : flag for seeing if dribbled or not. d = 0 if dribbling and not dribbling if not 0
         performs the equations of motion onto the ball in discrete sense
         no acceleration and no friction (can be addded later)
 
         updates state variables x and y
         """
-        self.x += self.xd
-        self.y += self.yd
-        self.speed = m.sqrt(self.xd*self.xd + self.yd*self.yd)
-        self.i += 1 # line of no significance
-        self.nu = self.i*self.i/100  # line of no significance
+        if d == 0:
+            self.x += self.xd
+            self.y += self.yd
+            self.speed = m.sqrt(self.xd*self.xd + self.yd*self.yd)
+            
+            if (self.xd>0):
+                self.dirx =1
+            elif (self.xd<0):
+                self.dirx =-1
+            else:
+                self.dirx =0
+            if (self.yd>0):
+                self.diry =1
+            elif (self.yd<0):
+                self.diry =-1
+            else:
+                self.diry =0
+
+
+            if(self.dirx ==0 and self.diry ==0):
+                self.friction()
+            elif (self.diry == 0 and self.dirx!=0):
+                self.frictionx()
+            elif (self.dirx == 0 and self.diry!=0):
+                self.frictiony()
+
+    def frictiony(self):
+        """
+        slowdown to ball along x
+        """
+        if self.speed != 0:
+            self.xd -= (self.xd/self.speed)*self.nu/10
+
+    def frictionx(self):
+        """
+        slowdown to ball along y
+        """
+        if self.speed != 0: 
+            self.yd -= (self.yd/self.speed)*self.nu/10
+
+    def friction(self):
+        """
+        slowdown to ball along both x and y
+        """
+        if self.speed != 0: 
+            self.xd -= ((self.xd/self.speed)*self.nu)/10
+            self.yd -= ((self.yd/self.speed)*self.nu)/10
 
 
 
@@ -329,7 +372,7 @@ def collRb(R,b):
             b.xd = vx + R.xd
             b.yd = vy + R.yd
             b.cr = 1
-            b.updatestate()
+            #b.updatestate()
     else:
         R.distdribbled = 0
         R.dribble = 0
@@ -345,7 +388,7 @@ def collRb(R,b):
             b.diry =-1
         else:
             b.diry =0
-        b.updatestate()  
+        #b.updatestate()  
 
 
 def collRR(a,b):
