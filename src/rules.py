@@ -35,19 +35,19 @@ def subinit():
 def boundcheck(a):
     dir = [0,0]
 
-    if a.x >= 470:
+    if a.x >= 320:
         dir[0] = 1
         fx= 1
-    elif a.x <= -470:
+    elif a.x <= -320:
         dir[0] = -1
         fx = 1
     else:
         dir[0] = 0
         fx = 0
-    if a.y >= 360:
+    if a.y >= 303:
         dir[0] = 1
         fy = 1
-    elif a.y <= -360:
+    elif a.y <= -303:
         dir[0] = -1
         fy = 1
     else:
@@ -124,12 +124,14 @@ if __name__ == '__main__':
         updaterpose(r11,r2)
         updaterpose(r20,r3)
         updaterpose(r21,r4)
+        # checking for out of bounds
         f = boundcheck(b)
         if f == 1:
-            if b.x>470 and b.y<80 and b.y>-80:
+            # checking for goals
+            if b.x>320 and b.y<180 and b.y>-180:
                 print 'goal for team 1'
                 f = 2
-            if b.x<-470 and b.y<80 and b.y>-80:
+            if b.x<-320 and b.y<180 and b.y>-180:
                 print 'goal for team 2'
                 f = 3
         statuspub.publish(f)
