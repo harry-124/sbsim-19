@@ -24,13 +24,14 @@ class ball:
     mflag : motion flag
     i : flag
     """
+    #cm to pixel conversion for factor for dimensions=2.52
     def __init__(self,x=0,y=0,xd=0,yd=0,xdd=0,ydd=0):
         self.x =x
         self.y = y
         self.xd =xd
         self.yd = yd
         self.cr = 1
-        self.r = 8
+        self.r = 5.67
         self.nu = 2
         self.speed = 0
         self.vthresh = 1
@@ -90,7 +91,7 @@ class robot:
         self.theta = yaw
         self.thetad = 0
         self.cr = 0.5
-        self.r = 40
+        self.r = 46.6
         self.nu = 1.5
         self.vthresh = 3
         self.dirx =0
@@ -256,15 +257,15 @@ def wallcheck(a):
     ox is 1 if right and -1 if collision with left wall
     oy is 1 if top and -1 if collision with bottom wall
     """
-    if a.x + a.r >= 500:
+    if a.x + a.r >= 340:
         ox = 1
-    elif a.x - a.r <= -500:
+    elif a.x - a.r <= -340:
         ox = -1
     else:
         ox = 0
-    if a.y + a.r >= 380:
+    if a.y + a.r >= 303:
         oy = 1
-    elif a.y - a.r <= -380:
+    elif a.y - a.r <= -303:
         oy = -1
     else:
         oy = 0
@@ -385,10 +386,10 @@ def walleffect(a):
     [ox,oy] = wallcheck(a)
     if ox == 1 or ox == -1:
         a.xd = -a.xd*0.2
-        a.x = ox*500-ox*a.r
+        a.x = ox*340-ox*a.r
     if oy == 1 or oy == -1:
         a.yd = -a.yd*0.2
-        a.y = oy*380-oy*a.r
+        a.y = oy*303-oy*a.r
     return [a.xd,a.yd]
 
 
