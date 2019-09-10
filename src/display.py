@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#pixel to cm ratio =2.5
 import sys
 import pygame as pg
 import rospy
@@ -8,15 +9,15 @@ from geometry_msgs.msg import Pose
 import math as m
 
 pg.init()
-screen = pg.display.set_mode((1000,760))
-pg.display.set_caption("simulation screen")
+screen = pg.display.set_mode((680,606))  # screen size
+pg.display.set_caption("Simulation screen")
 
 
 class ball:
-    def __init__(self,xp=500,yp=380):
+    def __init__(self,xp=340,yp=303):
         self.name = 'ballpose'
         self.ball_sub = rospy.Subscriber(self.name,Pose, self.ballcallback)
-        self.radius = 8
+        self.radius = 6 # to be scaled
         self.xo = int(xp)
         self.yo = int(yp)
         self.color = [255,100,150]
@@ -45,7 +46,7 @@ class robot:
         self.name = 'robot'+str(team)+'n'+str(n)+'/pose'
         self.n = n
         self.ball_sub = rospy.Subscriber(self.name,Pose, self.botcallback)
-        self.radius = 40
+        self.radius = 46 # to be scaled
         self.xo = int(xp)
         self.yo = int(yp)
         self.yaw = yaw
@@ -58,8 +59,8 @@ class robot:
 
     def refr(self):
         global screen
-        pg.draw.circle(screen, self.color,[self.x,self.y],self.radius,0)
-        pg.draw.circle(screen,[0,0,0],[self.x+int(20*m.cos(self.yaw)),self.y+int(20*m.sin(self.yaw))],10,0)
+        pg.draw.circle(screen, self.color,[self.x,self.y],self.radius,0) #main circle of the robot
+        pg.draw.circle(screen,[0,0,0],[self.x+int(20*m.cos(self.yaw)),self.y+int(20*m.sin(self.yaw))],8,0) #inner circle-to mark heading
         font = pg.font.Font('freesansbold.ttf',20)
         txtsf, txtre = text_objects(str(self.n),font)
         txtre.center = (self.x,self.y)
@@ -86,24 +87,25 @@ def text_objects(text,font):
     txtsurf = font.render(text,True,(0,0,0))
     return txtsurf, txtsurf.get_rect()
 
-def disptf(x,y,theta=0):
-    a = [(x+500),(380-y),-theta]
+def disptf(x,y,theta=0):   # transform of co-ordinate frame from center to corner
+    a = [(x+340),(303-y),-theta]
     return a
 
 def setuparena():
     screen.fill((0, 0, 0))
-    pg.draw.rect(screen,[60,200,60],(20,20,960,720))
-    pg.draw.rect(screen,[255,255,255],(20,20,960,720),8)
-    pg.draw.rect(screen,[0,0,255],(0,300,20,160))
-    pg.draw.rect(screen,[255,255,255],(496,0,8,760))
-    pg.draw.rect(screen,[255,0,0],(980,300,20,160))
-    pg.draw.circle(screen,[255,255,255],[500,380],80,8)
+    pg.draw.rect(screen,[60,200,60],(20,20,640,566)) 
+    pg.draw.rect(screen,[255,255,255],(20,20,640,566),8)
+    pg.draw.rect(screen,[0,0,255],(0,177,20,252)) # for blue goal post
+    pg.draw.rect(screen,[255,0,0],(660,177,20,252)) #for red goal post
+    pg.draw.line(screen,[255,255,255],(340,20),(340,586),8)
+    pg.draw.circle(screen,[255,255,255],[340,303],80,8)  #center circle of arena
+    
 
 def run_display():
     global screen
     clock = pg.time.Clock()
-    team1inits = [disptf(-420,0,0),disptf(-100,0,0)]
-    team2inits = [[770,205],[770,575]]
+    team1inits = [[88,303],[248,303]]
+    team2inits = [[500,164],[500,447]]
     print(clock)
     b = ball()
     r = []
