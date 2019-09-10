@@ -79,7 +79,7 @@ def summa():
     r = goalmsg()
     rate = rospy.Rate(10)
     while(True):
-        r.posetogo.position.x = 420
+        r.posetogo.position.x = 250
         r.posetogo.position.y = 0
         r.posetogo.orientation.z = 0  
         r.posetogo.orientation.w = 1
