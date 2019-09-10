@@ -17,7 +17,7 @@ class ball:
     def __init__(self,xp=340,yp=303):
         self.name = 'ballpose'
         self.ball_sub = rospy.Subscriber(self.name,Pose, self.ballcallback)
-        self.radius = 6 # to be scaled
+        self.radius = 6 
         self.xo = int(xp)
         self.yo = int(yp)
         self.color = [255,100,150]
@@ -46,7 +46,7 @@ class robot:
         self.name = 'robot'+str(team)+'n'+str(n)+'/pose'
         self.n = n
         self.ball_sub = rospy.Subscriber(self.name,Pose, self.botcallback)
-        self.radius = 46 # to be scaled
+        self.radius = 46 
         self.xo = int(xp)
         self.yo = int(yp)
         self.yaw = yaw
