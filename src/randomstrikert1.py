@@ -44,7 +44,7 @@ def summa():
         r1.publish(r)
         rate.sleep()
         flag = 1
-        r.posetogo.position.x = 250
+        r.posetogo.position.x = 180
         a = rnd.randint(1,2)
         if a == 2:
             a = -1
