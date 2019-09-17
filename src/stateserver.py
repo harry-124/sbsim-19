@@ -186,6 +186,7 @@ def game(t1,t2):
                 p.collRR(r1[1],r2[1])
                 p.collRR(r2[0],r2[1])
                 dribbletest(r1[0 ],r1[1],r2[0],r2[1])
+                ball.updatestate(d)
                 updatebpose(bpose,ball)
                 updatebtwist(btwist,ball)
                 x1 = updaterpose(rpose[0],r1[0])

@@ -17,7 +17,7 @@ def control(gmsg,robot,ball):
     mybotpid = pid.pid(x=robot.x,y=robot.y,ball = ball,angle=robot.theta)
     if gmsg.status == 1 or gmsg.status == 2:
         th = 2*m.atan(gmsg.posetogo.orientation.z)
-        if abs(robot.x - gmsg.posetogo.position.x)<20 and abs(robot.y - gmsg.posetogo.position.y)<20 and abs(robot.theta - 2*m.atan(gmsg.posetogo.orientation.z))< 1:
+        if abs(robot.x - gmsg.posetogo.position.x)<40 and abs(robot.y - gmsg.posetogo.position.y)<40 and abs(robot.theta - 2*m.atan(gmsg.posetogo.orientation.z))< 1:
             if gmsg.status == 2:
                 print('ball kicked')
                 robot.kick(ball,1)

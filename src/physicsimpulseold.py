@@ -24,75 +24,71 @@ class ball:
     mflag : motion flag
     i : flag
     """
-    #cm to pixel conversion for factor for dimensions=2.52
     def __init__(self,x=0,y=0,xd=0,yd=0,xdd=0,ydd=0):
         self.x =x
         self.y = y
         self.xd =xd
         self.yd = yd
         self.cr = 1
-        self.r = 5.67
-        self.nu = 1
+        self.r = 8
+        self.nu = 2
         self.speed = 0
         self.vthresh = 1
         self.mflag = 0
         self.i = 0
 
-    def updatestate(self,d):
+
+    def mtest(self):
         """
-        d : flag for seeing if dribbled or not. d = 0 if dribbling and not dribbling if not 0
+        deprecated
+        tests if ball is in motion or not
+        """
+        if self.xd != 0 and self.yd != 0:
+            self.mflag = 1
+        else:
+            self.mflag = 0
+
+    def frictiony(self):
+        """
+        deprecated
+
+        """
+        self.mtest()
+        if self.speed != 0:
+            self.xd -= (self.xd/self.speed)*self.nu
+
+    def frictionx(self):
+        """
+        deprecated
+
+        """
+        self.mtest()
+        if self.speed != 0: 
+            self.yd -= (self.yd/self.speed)
+
+    def friction(self):
+        """
+        deprecated
+
+        """
+        self.mtest()
+        if self.speed != 0: 
+            self.xd -= ((self.xd/self.speed)*self.nu)
+            self.yd -= ((self.yd/self.speed)*self.nu)
+
+
+    def updatestate(self):
+        """
         performs the equations of motion onto the ball in discrete sense
         no acceleration and no friction (can be addded later)
 
         updates state variables x and y
         """
-        if d == 0:
-            self.x += self.xd
-            self.y += self.yd
-            self.speed = m.sqrt(self.xd*self.xd + self.yd*self.yd)
-            
-            if (self.xd>0):
-                self.dirx =1
-            elif (self.xd<0):
-                self.dirx =-1
-            else:
-                self.dirx =0
-            if (self.yd>0):
-                self.diry =1
-            elif (self.yd<0):
-                self.diry =-1
-            else:
-                self.diry =0
-
-
-            if(self.dirx ==0 and self.diry ==0):
-                self.friction()
-            elif (self.diry == 0 and self.dirx!=0):
-                self.frictionx()
-            elif (self.dirx == 0 and self.diry!=0):
-                self.frictiony()
-
-    def frictiony(self):
-        """
-        slowdown to ball along x
-        """
-        if self.speed != 0:
-            self.xd -= (self.xd/self.speed)*self.nu/10
-
-    def frictionx(self):
-        """
-        slowdown to ball along y
-        """
-        if self.speed != 0: 
-            self.yd -= (self.yd/self.speed)*self.nu/10
-
-    def friction(self):
-        """
-        slowdown to ball along both x and y
-        """
-        if self.speed != 0: 
-            self.xd -= ((self.xd/self.speed)*self.nu)/10
-            self.yd -= ((self.yd/self.speed)*self.nu)/10
+        self.x += self.xd
+        self.y += self.yd
+        self.speed = m.sqrt(self.xd*self.xd + self.yd*self.yd)
+        self.i += 1 # line of no significance
+        self.nu = self.i*self.i/100  # line of no significance
 
 
 
@@ -134,7 +130,7 @@ class robot:
         self.theta = yaw
         self.thetad = 0
         self.cr = 0.5
-        self.r = 46.6
+        self.r = 40
         self.nu = 1.5
         self.vthresh = 3
         self.dirx =0
@@ -144,6 +140,14 @@ class robot:
         self.ball = ball
         self.distdribbled = 0
 
+    def mtest(self):
+        """
+        deprecated
+        """
+        if self.xd != 0 and self.yd != 0:
+            self.mflag = 1
+        else:
+            self.mflag = 0
 
     def updatestate(self):
         """
@@ -188,12 +192,92 @@ class robot:
         """
         self.thetad = thetad
 
-    def setspeed(self,vx,vy):
-        self.xd = vx
-        self.yd = vy
-        self.updatestate()
-        self.xd = 0
-        self.yd = 0
+    def frictiony(self):
+        """
+        friction model that retards bot while in motion
+        """
+        self.mtest()
+        if self.speed != 0: 
+            #print(self.xd,self.yd)
+            self.xdd = -((self.xd/self.speed)*self.nu)
+            #self.ydd = -round((self.yd/self.speed)*nu)
+            #print(self.xdd)
+            #print(self.ydd)
+            self.updatestate()
+            #print("xd",self.xd)
+            #print("yd",self.yd)
+            self.xdd = 0
+            #self.ydd = 0
+        else:
+            self.xdd=0
+            #self.ydd=0
+            self.mtest()
+
+    def frictionx(self):
+        """
+        friction model that retards bot while in motion
+        """
+        self.mtest()
+        if self.speed != 0: 
+            #print(self.xd,self.yd)
+            #self.xdd = -round((self.xd/self.speed)*nu)
+            self.ydd = -((self.yd/self.speed)*self.nu)
+            #print(self.xdd)
+            #print(self.ydd)
+            self.updatestate()
+            #print("xd",self.xd)
+            #print("yd",self.yd)
+            #self.xdd = 0
+            self.ydd = 0
+        else:
+            #self.xdd=0
+            self.ydd=0
+            self.mtest()
+
+    def friction(self):
+        """
+        friction model that retards bot while in motion
+        """
+        self.mtest()
+        if self.speed != 0: 
+            #print(self.xd,self.yd)
+            self.xdd = -((self.xd/self.speed)*self.nu)
+            self.ydd = -((self.yd/self.speed)*self.nu)
+            #print(self.xdd)
+            #print(self.ydd)
+            self.updatestate()
+            #print("xd",self.xd)
+            #print("yd",self.yd)
+            self.xdd = 0
+            self.ydd = 0
+        else:
+            self.xdd=0
+            self.ydd=0
+            self.mtest()
+
+    def teleop(self,dir,k=0):
+        """
+        deprecated (old keyboard command based controls)
+        """
+        if(dir[0]==1 or dir[1]==1 or dir[2]==1 or dir[3]==1):
+            if dir[0]==1:
+                self.impulse(0,k)
+                self.diry = -1
+            if dir[1]==1:
+                self.impulse(0,-k)
+                self.diry = 1
+            if dir[2]==1:
+                self.impulse(-k,0)
+                self.dirx = -1
+            if dir[3]==1:
+                self.impulse(k,0)
+                self.dirx = 1
+        if(self.dirx ==0 and self.diry ==0):
+            self.friction()
+        elif (self.diry == 0 and self.dirx!=0):
+            self.frictionx()
+        elif (self.dirx == 0 and self.diry!=0):
+            self.frictiony()
 
     def movebot(self,kx,ky,ball,thetad=0):
         """
@@ -214,7 +298,7 @@ class robot:
             self.diry =0
 
         self.rotate(thetad)
-        self.setspeed(kx,ky)
+        self.impulse(kx,ky)
         if self.dribble == 1:
             ball.xd = self.xd
             ball.yd = self.yd
@@ -222,6 +306,13 @@ class robot:
             ball.ydd = self.ydd
             ball.x = self.x + (self.r+ball.r)*m.cos(self.theta)
             ball.y = self.y + (self.r+ball.r)*m.sin(self.theta)
+
+        if(self.dirx ==0 and self.diry ==0):
+            self.friction()
+        elif (self.diry == 0 and self.dirx!=0):
+            self.frictionx()
+        elif (self.dirx == 0 and self.diry!=0):
+            self.frictiony()
 
     def kick(self,ball,mag):
         """
@@ -241,6 +332,7 @@ class robot:
             ball.y = self.y-(self.r+ball.r)*ks+2
         elif ks < 0:
             ball.y = self.y-(self.r+self.r)*ks-2
+        #print 'ball kicked'
 
 
 
@@ -300,15 +392,15 @@ def wallcheck(a):
     ox is 1 if right and -1 if collision with left wall
     oy is 1 if top and -1 if collision with bottom wall
     """
-    if a.x + a.r >= 340:
+    if a.x + a.r >= 500:
         ox = 1
-    elif a.x - a.r <= -340:
+    elif a.x - a.r <= -500:
         ox = -1
     else:
         ox = 0
-    if a.y + a.r >= 303:
+    if a.y + a.r >= 380:
         oy = 1
-    elif a.y - a.r <= -303:
+    elif a.y - a.r <= -380:
         oy = -1
     else:
         oy = 0
@@ -372,7 +464,7 @@ def collRb(R,b):
             b.xd = vx + R.xd
             b.yd = vy + R.yd
             b.cr = 1
-            #b.updatestate()
+            b.updatestate()
     else:
         R.distdribbled = 0
         R.dribble = 0
@@ -388,7 +480,14 @@ def collRb(R,b):
             b.diry =-1
         else:
             b.diry =0
-        #b.updatestate()  
+
+        if(b.dirx ==0 and b.diry ==0):
+            b.friction()
+        elif (b.diry == 0 and b.dirx!=0):
+            b.frictionx()
+        elif (b.dirx == 0 and b.diry!=0):
+            b.frictiony()
+        b.updatestate()  
 
 
 def collRR(a,b):
@@ -429,10 +528,10 @@ def walleffect(a):
     [ox,oy] = wallcheck(a)
     if ox == 1 or ox == -1:
         a.xd = -a.xd*0.2
-        a.x = ox*340-ox*a.r
+        a.x = ox*500-ox*a.r
     if oy == 1 or oy == -1:
         a.yd = -a.yd*0.2
-        a.y = oy*303-oy*a.r
+        a.y = oy*380-oy*a.r
     return [a.xd,a.yd]
 
 
