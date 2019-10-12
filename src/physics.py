@@ -192,9 +192,9 @@ class robot:
         self.xd = vx
         self.yd = vy
         self.updatestate()
-        self.xd = 0
-        self.yd = 0
-
+        self.xd=0
+        self.yd=0
+    
     def movebot(self,kx,ky,ball,thetad=0):
         """
         applies impulse to robot along kx,ky along with rotation thetad also considers of dribbling or not
@@ -227,6 +227,7 @@ class robot:
         """
         kicks ball in the direction of facing if the ball is in dribbled state at a relative speed of mag
         """
+        print("Ball kicked")
         ball.xd = self.xd + mag*m.cos(self.theta)
         ball.yd = self.yd + mag*m.sin(self.theta)
         ball.speed = m.sqrt(ball.xd*ball.xd +ball.yd*ball.yd)
@@ -289,8 +290,12 @@ def angcso(a,b):
     """
     returns sine and cosine between 2 objects
     """
-    c = (a.x - b.x)/disto(a,b)
-    s = (a.y - b.y)/disto(a,b)
+    if(disto(a,b)!=0):
+        c = (a.x - b.x)/disto(a,b)
+        s = (a.y - b.y)/disto(a,b)
+    else:
+        c=1
+        s=0
     return [c,s]
 
 def wallcheck(a):
@@ -318,7 +323,7 @@ def colcheck(a,b):
     """
     checks if 2 objects are in collision returns 1 if collision occurs 0 if not
     """
-    if disto(a,b)<=(a.r+b.r):
+    if disto(a,b)<=1.0+(a.r+b.r): #1.0 bias for reverse dribbling 
         return 1
     else: return 0
 
@@ -327,10 +332,10 @@ def collRb(R,b):
     """
     collision behavior modelling between robot and ball R is robot object and b is ball object
     """
-    vthresh = 1
+    vthresh = 2
     [c,s] = angcso(R,b)
     if(colcheck(R,b)==1):
-        if R.dribble == 1 or (abs(R.xd - b.xd) < vthresh and abs(R.yd - b.yd) < vthresh and c<=-0.97):
+        if R.dribble == 1 or (abs(R.xd - b.xd) < vthresh and abs(R.yd - b.yd) < vthresh and c<=-0.97 ):
             # dribble ball
             R.dribble = 1
             b.xd = 0
@@ -372,7 +377,8 @@ def collRb(R,b):
             b.xd = vx + R.xd
             b.yd = vy + R.yd
             b.cr = 1
-            #b.updatestate()
+
+            #b.updatestate(R.dribble)
     else:
         R.distdribbled = 0
         R.dribble = 0
@@ -388,7 +394,8 @@ def collRb(R,b):
             b.diry =-1
         else:
             b.diry =0
-        #b.updatestate()  
+    return R.dribble
+        #b.updatestate(R.dribble)  
 
 
 def collRR(a,b):

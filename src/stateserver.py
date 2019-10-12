@@ -1,27 +1,27 @@
 #!/usr/bin/env python
+import rospy
 import sys
 import physics as p
 import pygame as pg
 import pid
-import rospy
 import math as m
 from geometry_msgs.msg import Pose, Twist
 from sbsim.msg import goalmsg
-import controller as c
 from std_msgs.msg import Int32
 from std_msgs.msg import Float64
 from sbsim.msg import dribble
+from sbsim.msg import game
 
 d = 0
 
-r10msg = goalmsg()
-r11msg = goalmsg()
-r20msg = goalmsg()
-r21msg = goalmsg() 
 r1f = 1
 r2f = 1
 r3f =1
 r4f =1
+ball = p.ball(x = 0,y = 0)
+
+r1=[]
+r2=[]
 
 gs = 0
  
@@ -44,41 +44,39 @@ def robotpubinit(t,n):
     namepose = 'robot'+str(t)+'n'+str(n)+'/pose'
     nametwist = 'robot'+str(t)+'n'+str(n)+'/twist'
     namer = 'robot'+str(t)+'n'+str(n)+'/reached'
-    return rospy.Publisher(namepose,Pose, queue_size = 10),rospy.Publisher(namer,Int32,queue_size = 10)
+    return rospy.Publisher(namepose,Pose, queue_size = 10),rospy.Publisher(namer,Int32,queue_size = 10),rospy.Publisher(nametwist,Twist,queue_size=10)
 
-def robotsubinit():
-    rospy.Subscriber('robot1n0/ptg',goalmsg,r10callback)
-    rospy.Subscriber('robot1n1/ptg',goalmsg,r11callback)
-    rospy.Subscriber('robot2n0/ptg',goalmsg,r20callback)
-    rospy.Subscriber('robot2n1/ptg',goalmsg,r21callback)
 
-def r10callback(msg):
-    global r10msg
-    global r1f
-    r10msg = msg
-    r1f = 1
-    return 0
 
-def r11callback(msg):
-    global r11msg
-    global r2f
-    r11msg = msg
-    r2f = 1
-    return 0
 
-def r20callback(msg):
-    global r3f
-    global r20msg
-    r20msg = msg
-    r3f = 1
-    return 0
 
-def r21callback(msg):
-    global r4f
-    global r21msg
-    r21msg  = msg
-    r4f = 1
-    return 0    
+def ctrlcallback(msg):
+    global r1
+    global r2
+    global ball
+    if(msg.tag==0):
+        r1[0].movebot(kx=msg.kx,ky=msg.ky,ball=ball,thetad=msg.thetad)
+        if(msg.kick==1):
+            r1[0].dribble=0
+            r1[0].kick(ball,2)
+            
+    if(msg.tag==1):
+        r1[1].movebot(kx=msg.kx,ky=msg.ky,ball=ball,thetad=msg.thetad)
+        if(msg.kick==1):
+            r1[1].dribble=0
+            r1[1].kick(ball,2)
+            
+    if(msg.tag==2):
+        r2[0].movebot(kx=msg.kx,ky=msg.ky,ball=ball,thetad=msg.thetad)
+        if(msg.kick==1):
+            r2[0].dribble=0
+            r2[0].kick(ball,2) 
+    if(msg.tag==3):
+        r2[1].movebot(kx=msg.kx,ky=msg.ky,ball=ball,thetad=msg.thetad)
+        if(msg.kick==1):
+            r2[1].dribble=0
+            r2[1].kick(ball,2)
+            
 
 #callback of subscriber to intelligence
 
@@ -96,11 +94,15 @@ def updaterpose(a,b):
     if b.distdribbled != 0:
         return b.distdribbled
 
+def updatertwist(a,b):
+    a.linear.x = b.xd
+    a.linear.y = b.yd
+    a.linear.z = b.theta   
+
 def updatebtwist(a,b):
     a.linear.x = b.xd
     a.linear.y = b.yd
-    a.linear.z = 0
-    
+    a.linear.z = 0   
 
 def updatebpose(a,b):
     a.position.x = b.x
@@ -122,69 +124,85 @@ def reset(t1,t2,r1,r2,r3,r4,ball):
     gs = 0
 
 
-def game(t1,t2):
-    global r10msg
-    global r11msg
-    global r20msg
-    global r21msg
+def gamefun(t1,t2):
     global d
     global gs
     global r1f
     global r2f
     global r3f
     global r4f
+    global r1
+    global r2
+    global ball
     rospy.Subscriber('game/status',Int32,rulecheck)
-    robotsubinit()
+    rospy.Subscriber('pid/ctrl',game,ctrlcallback)
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
     pubbtwist = rospy.Publisher('balltwist', Twist, queue_size=10)
     drib = rospy.Publisher('game/dribbler', Int32, queue_size=10)
     yis = rospy.Publisher('game/dribdist', Float64, queue_size=10)
     pr1 = []
+    tr1=[]
     pr2 = []
-    a,r1r = robotpubinit(1,0)
+    tr2=[]
+    a,r1r,t = robotpubinit(1,0)
     pr1.append(a)
-    a,r2r = robotpubinit(1,1)
+    tr1.append(t)
+    a,r2r,t = robotpubinit(1,1)
     pr1.append(a)
-    a,r3r = robotpubinit(2,0)
+    tr1.append(t)
+    a,r3r,t = robotpubinit(2,0)
     pr2.append(a)
-    a,r4r = robotpubinit(2,1)
+    tr2.append(t)
+    a,r4r,t = robotpubinit(2,1)
     pr2.append(a)
+    tr2.append(t)
     btwist = Twist()
     rate = rospy.Rate(60)
     while True:
-        ball = p.ball(x = 0,y = 0)
         bpose = Pose()
-        r1 = []
-        r2 = []
         r1.append(p.robot(x= t1[0][0],y= t1[0][1], yaw  = 0, ball = ball))
         r1.append(p.robot(x= t1[1][0],y= t1[1][1], yaw  = 0, ball = ball))
         r2.append(p.robot(x= t2[0][0],y= t2[0][1], yaw  = 3.14, ball = ball))
         r2.append(p.robot(x= t2[1][0],y= t2[1][1], yaw  = 3.14, ball = ball))
 
         rpose = [Pose(),Pose(),Pose(),Pose()]
+        rtwist= [Twist(),Twist(),Twist(),Twist()]
         updatebpose(bpose,ball)
         updatebtwist(btwist,ball)
         updaterpose(rpose[0],r1[0])
         updaterpose(rpose[1],r1[1])
         updaterpose(rpose[2],r2[0])
         updaterpose(rpose[3],r2[1])
+        updatertwist(rtwist[0],r1[0])
+        updatertwist(rtwist[1],r1[1])
+        updatertwist(rtwist[2],r2[0])
+        updatertwist(rtwist[3],r2[1])
         pr1[0].publish(rpose[0])
         pr1[1].publish(rpose[1])
         pr2[0].publish(rpose[2])
         pr2[1].publish(rpose[3])
+        tr1[0].publish(rtwist[0])
+        tr1[1].publish(rtwist[1])
+        tr2[0].publish(rtwist[2])
+        tr2[1].publish(rtwist[3])
         pubball.publish(bpose)
+        pubbtwist.publish(btwist)
         while not rospy.is_shutdown():
             if gs == 0:
-                c.control(r10msg,r1[0],ball)
-                c.control(r11msg,r1[1],ball)
-                c.control(r20msg,r2[0],ball)
-                c.control(r21msg,r2[1],ball)
                 p.collRR(r1[0],r2[0])
                 p.collRR(r1[0],r2[1])
                 p.collRR(r1[0],r1[1])
                 p.collRR(r1[1],r2[0])
                 p.collRR(r1[1],r2[1])
                 p.collRR(r2[0],r2[1])
+                p.walleffect(r1[0])
+                p.walleffect(r1[1])
+                p.walleffect(r2[0])
+                p.walleffect(r2[1])
+                p.collRb(r1[0],ball)
+                p.collRb(r1[1],ball)
+                p.collRb(r2[0],ball)
+                p.collRb(r2[1],ball)
                 dribbletest(r1[0 ],r1[1],r2[0],r2[1])
                 ball.updatestate(d)
                 updatebpose(bpose,ball)
@@ -206,6 +224,10 @@ def game(t1,t2):
                 pr2[1].publish(rpose[3])
                 pubball.publish(bpose)
                 pubbtwist.publish(btwist)
+                tr1[0].publish(rtwist[0])
+                tr1[1].publish(rtwist[1])
+                tr2[0].publish(rtwist[2])
+                tr2[1].publish(rtwist[3])
                 drib.publish(d)
                 rate.sleep()
             else:
@@ -227,6 +249,10 @@ def game(t1,t2):
                 pr1[1].publish(rpose[1])
                 pr2[0].publish(rpose[2])
                 pr2[1].publish(rpose[3])
+                tr1[0].publish(rtwist[0])
+                tr1[1].publish(rtwist[1])
+                tr2[0].publish(rtwist[2])
+                tr2[1].publish(rtwist[3])
                 pubball.publish(bpose)
                 pubbtwist.publish(btwist)
                 drib.publish(d)
@@ -255,8 +281,8 @@ if __name__ == '__main__':
     elif b == 2:
         posb = [[125,100],[125,-100]]
     else:
-        posb = [[125,240],[400,0]]
+        posb = [[125,240],[303,0]]
     try:
-        game(posa,posb)
+        gamefun(posa,posb)
     except rospy.ROSInterruptException:
         pass
