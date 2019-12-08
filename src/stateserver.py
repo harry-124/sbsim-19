@@ -263,25 +263,8 @@ def gamefun(t1,t2):
 
 if __name__ == '__main__':
     rospy.init_node('state_server',anonymous=True)
-    print 'Select Formation for team 1'
-    print '1. Striker + Defender'
-    print '2. Dynamic Duo'
-    a = input('Enter 1 or 2')
-    print 'Select Formation for team 2'
-    print '1. Striker + Defender'
-    print '2. Dynamic Duo'
-    print '3. Soyboy + GK'
-    b = input('Enter 1 or 2')
-    if a == 1: 
-        posa = [[-50,0],[-250,0]]
-    elif a == 2:
-        posa = [[-125,100],[-125,-100]]
-    if b == 1:
-        posb = [[50,0],[250,0]]
-    elif b == 2:
-        posb = [[125,100],[125,-100]]
-    else:
-        posb = [[125,240],[303,0]]
+    posa = [[-125,100],[-125,-100]]
+    posb = [[125,100],[125,-100]]
     try:
         gamefun(posa,posb)
     except rospy.ROSInterruptException:
