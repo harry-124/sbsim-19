@@ -39,7 +39,7 @@ gs = 0
 r1=[]
 r2=[]
 
-pid_ctrl= rospy.Publisher('pid/ctrl',game, queue_size=10)
+pid_ctrl= rospy.Publisher('ctrl',game, queue_size=10)
 
 def dribcallback(msg): 
     global r1

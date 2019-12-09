@@ -108,15 +108,11 @@ def ctrlcallback(msg):
     phw.publish(a)
 
 def gamefun():
-    while True:
-        a =0
-    return 0
+    rospy.spin()
 
 if __name__ == '__main__':
     rospy.init_node('ik',anonymous=True)
-    posa = [[-125,100],[-125,-100]]
-    posb = [[125,100],[125,-100]]
-    rospy.Subscriber('pid/ctrl',game,ctrlcallback)
+    rospy.Subscriber('ctrl',game,ctrlcallback)
     rospy.Subscriber('robot1n0/pose', Pose, botcallback1)  
     rospy.Subscriber('robot1n1/pose', Pose, botcallback2)  
     rospy.Subscriber('robot2n0/pose', Pose, botcallback3)  

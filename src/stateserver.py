@@ -132,7 +132,7 @@ def gamefun(t1,t2):
     global r2
     global ball
     rospy.Subscriber('game/status',Int32,rulecheck)
-    rospy.Subscriber('pid/ctrl',game,ctrlcallback)
+    rospy.Subscriber('ctrl_rx',game,ctrlcallback)
     pubball = rospy.Publisher('ballpose', Pose, queue_size=10)
     pubbtwist = rospy.Publisher('balltwist', Twist, queue_size=10)
     drib = rospy.Publisher('game/dribbler', Int32, queue_size=10)
