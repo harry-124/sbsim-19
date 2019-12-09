@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 import rospy
-import sys
 import physics as p
-import pygame as pg
-import pid
 import math as m
 from geometry_msgs.msg import Pose, Twist
 from sbsim.msg import goalmsg
