@@ -302,7 +302,7 @@ def run():
     rospy.Subscriber('robot1n0/ptg',goalmsg,r10callback)
     rospy.Subscriber('robot1n1/ptg',goalmsg,r11callback)
     rospy.Subscriber('robot2n0/ptg',goalmsg,r20callback)
-    rospy.Subscriber('robot2n1/ptg',goalmsg,r21callback)
+    rospy.Subscriber('robot2n1/ptg',goalmsg,r21callback)publish
     rospy.Subscriber('ballpose', Pose,ballposecallback)
     rospy.Subscriber('balltwist',Twist,balltwistcallback)
     rospy.Subscriber('robot1n0/pose',Pose,r10posecallback)
@@ -320,7 +320,7 @@ def run():
     rospy.spin()
 
 if __name__ == '__main__':
-    rospy.init_node('Control', anonymous=True)
+    rospy.init_node('p2p', anonymous=True)
     r1.append(p.robot(x= 0.0,y=0.0, yaw  = 0, ball = ball))
     r1.append(p.robot(x= 0.0,y= 0.0, yaw  = 0, ball = ball))
     r2.append(p.robot(x= 0.0,y=0.0, yaw  = 3.14, ball = ball))
