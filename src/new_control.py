@@ -29,6 +29,10 @@ r10msg = goalmsg()
 r11msg = goalmsg()
 r20msg = goalmsg()
 r21msg = goalmsg() 
+r10cs = 0
+r11cs = 0
+r20cs = 0
+r21cs = 0
 r1f = 1
 r2f = 1
 r3f =1
@@ -119,6 +123,29 @@ def pid(xtg,ytg,bot,thtg=0):
     ctrl.tag=tag
     pid_ctrl.publish(ctrl)
 
+def r10selcallback(msg):
+    global r10cs
+    if msg.data == 1:
+        r10cs = 1
+    return 0
+
+def r11selcallback(msg):
+    global r11cs
+    if msg.data == 1:
+        r11cs = 1
+    return 0
+
+def r20selcallback(msg):
+    global r20cs
+    if msg.data == 1:
+        r20cs = 1
+    return 0
+
+def r21selcallback(msg):
+    global r21cs
+    if msg.data == 1:
+        r21cs = 1
+    return 0
 
 def balltwistcallback(msg):
     global ball
@@ -197,10 +224,11 @@ def r10twistcallback(msg):
     global r1
     global tag
     global gs
+    global r10cs
     tag=0
     rtwist[0]=msg
     updatertwist(rtwist[0],r1[0])
-    if(gs==0):
+    if(gs==0 and r10cs == 1):
         control(r10msg,r1[0],ball)
 
 def r11twistcallback(msg):
@@ -208,10 +236,11 @@ def r11twistcallback(msg):
     global r1
     global tag
     global gs
+    global r11cs
     tag=1
     rtwist[0]=msg
     updatertwist(rtwist[1],r1[1])
-    if(gs==0):
+    if(gs==0 and r11cs == 1):
         control(r11msg,r1[1],ball)
 
 def r20twistcallback(msg):
@@ -219,10 +248,11 @@ def r20twistcallback(msg):
     global r2
     global tag
     global gs
+    global r20cs
     tag=2
     rtwist[0]=msg
     updatertwist(rtwist[2],r2[0])
-    if(gs==0):
+    if(gs==0 and r20cs == 1):
         control(r20msg,r2[0],ball)
 
 def r21twistcallback(msg):
@@ -230,10 +260,11 @@ def r21twistcallback(msg):
     global r2
     global tag
     global gs   
+    global r21cs
     tag=3
     rtwist[0]=msg
     updatertwist(rtwist[3],r2[1])
-    if(gs==0):
+    if(gs==0 and r21cs == 1):
         control(r21msg,r2[1],ball)
 
 def updaterpose(a,b):
@@ -282,6 +313,10 @@ def run():
     rospy.Subscriber('robot1n1/twist',Twist,r11twistcallback)
     rospy.Subscriber('robot2n0/twist',Twist,r20twistcallback)
     rospy.Subscriber('robot2n1/twist',Twist,r21twistcallback)
+    rospy.Subscriber('robot1n0/cselect',Int32,r10selcallback)
+    rospy.Subscriber('robot1n1/cselect',Int32,r11selcallback)
+    rospy.Subscriber('robot2n0/cselect',Int32,r20selcallback)
+    rospy.Subscriber('robot2n1/cselect',Int32,r21selcallback)
     rospy.spin()
 
 if __name__ == '__main__':

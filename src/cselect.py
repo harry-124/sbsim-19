@@ -10,13 +10,8 @@ import physics as p
 import pygame as pg
 import pid
 import math as m
-from geometry_msgs.msg import Pose, Twist
-from sbsim.msg import goalmsg
 from std_msgs.msg import Int32
-from std_msgs.msg import Float64
-from sbsim.msg import dribble
-from sbsim.msg import game
-from sbsim.msg import hw
+
 import tf
 
 pc = []
@@ -33,7 +28,7 @@ def gamefun():
     global pc
     r = rospy.Rate(20)
     while(True):
-        r_s = input('select robot \n1. robot1n0\n2.  robot1n1\n3.  robot2n0\n4.  robot2n1')
+        r_s = input('select robot \n0. robot1n0\n1.  robot1n1\n2.  robot2n0\n3.  robot2n1')
         c_s = input('select controller \n1. PID P2P \n2. Trajectory controller \n3. Extremal controller')
         pc[r_s].publish(c_s)
         r.sleep()
