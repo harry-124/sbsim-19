@@ -1,7 +1,7 @@
 <launch>
   <node pkg="sbsim" name="displayer" type="display.py" output = "screen"/>
   <node pkg="sbsim" name="stateserver1" type="stateserver.py" output = "screen"/>
-  <node pkg="sbsim" name="new_control" type="new_control.py" output = "screen"/>
+  <node pkg="sbsim" name="p2pctrl" type="p2pctrl.py" output = "screen"/>
   <node pkg="sbsim" name="rules" type="rules.py" output = "screen"/>
   <node pkg="sbsim" name="ik" type="ik.py" output = "screen"/>
   <node pkg="sbsim" name="fk" type="fk.py" output = "screen"/>
