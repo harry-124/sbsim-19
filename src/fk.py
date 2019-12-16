@@ -85,7 +85,7 @@ def hwcallback(msg):
     w3 = msg.w3
     tag = msg.tag
     kick = msg.kick
-    k = np.random.normal(0,0.01,3)
+    k = np.array([0,0,0])#np.random.normal(0,0.01,3)
     w1 = w1 + k[0]
     w2 = w2 + k[1]
     w3 = w3 + k[2]
