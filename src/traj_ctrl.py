@@ -252,8 +252,8 @@ def run():
                     r10vel.kx /= 0.5*norm
                     r10vel.ky /= 0.5*norm
                     r10vel.tag = 0
-                   # if mindistr10 < 1:
-                    #    rpath[0].pop(indexr10)
+                    #if mindistr10 < 1:
+                        #rpath[0].pop(indexr10)
                     traj_pub_r10.publish(r10vel)
         if r11cs == 2:
             if len(rpath[1])> 0 and len(rvects[1]) > 0:
@@ -271,9 +271,9 @@ def run():
                 if not norm == 0:
                     r11vel.kx /= 0.5*norm
                     r11vel.ky /= 0.5*norm
-                    r11vel.tag = 0
-                    if mindistr11 < 1:
-                        rpath[0].pop(indexr11)
+                    r11vel.tag = 1
+                    #if mindistr11 < 1:
+                    #    rpath[0].pop(indexr11)
                     traj_pub_r11.publish(r11vel)
         if r20cs == 2:
             if len(rpath[2])> 0 and len(rvects[2]) > 0:
@@ -291,9 +291,9 @@ def run():
                 if not norm == 0:
                     r20vel.kx /= 0.5*norm
                     r20vel.ky /= 0.5*norm
-                    r20vel.tag = 0
-                    if mindistr20 < 1:
-                        rpath[2].pop(indexr20)
+                    r20vel.tag = 2
+                    #if mindistr20 < 1:
+                    #    rpath[2].pop(indexr20)
                     traj_pub_r20.publish(r20vel)
         if r21cs == 2:
             if len(rpath[3])> 0 and len(rvects[3]) > 0:
@@ -311,9 +311,9 @@ def run():
                 if not norm == 0:
                     r21vel.kx /= 0.5*norm
                     r21vel.ky /= 0.5*norm
-                    r21vel.tag = 0
-                    if mindistr21 < 1:
-                        rpath[3].pop(indexr21)
+                    r21vel.tag = 3
+                    #if mindistr21 < 1:
+                    #    rpath[3].pop(indexr21)
                     traj_pub_r21.publish(r21vel)
         rate.sleep()
             
