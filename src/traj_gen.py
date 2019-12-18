@@ -18,6 +18,7 @@ from std_msgs.msg import Int32
 from std_msgs.msg import Float64
 from sbsim.msg import dribble
 from sbsim.msg import game
+from sbsim.msg import path
 import random as rnd
 import time
 import tf
@@ -40,17 +41,34 @@ def getpts():
 
 def gettraj(pts):
     beziers = fitCurve(pts,1)
+    pathi = path()
+    single = game()
     bz = []
     for b in beziers:
         for t in range(0, 51):
             bz.append(bezier.q(b, t/50.0).tolist())
     bz = np.array(bz)
+    pli = []
+    for i in range(len(bz)):
+        print(bz[i])
+        single = game()
+        single.kx = bz[i][0]
+        single.ky = bz[i][1]
+        pli.append(single)
+    pathi.points = pli
     xdot = np.gradient(bz.T[0])
     ydot = np.gradient(bz.T[1])
     Xdot = [xdot,ydot]
     Xdot = np.array(Xdot)
     Xdot = Xdot.T
-    return bz,Xdot
+    pti = []
+    for i in range(len(Xdot)):
+        print(bz[i])
+        single = game()
+        single.kx = Xdot[i][0]
+        single.ky = Xdot[i][1]
+        pti.append(single)
+    return pathi,Xdot,pti
 
 def botcallback(msg):
     global flag
@@ -71,7 +89,8 @@ def run():
     global flag
     rospy.init_node('trajectory_gen',anonymous=True)
     traj_pub = rospy.Publisher('robot1n0/traj_vect',game, queue_size = 20)
-    ptg_pub = rospy.Publisher('robot1n0/ptg',goalmsg, queue_size = 20)
+    traj_publ = rospy.Publisher('robot1n0/traj_vect_list',path, queue_size = 20)
+    ppathr1n0 = rospy.Publisher('robot1n0/path',path,queue_size = 20)
     rospy.Subscriber('robot1n0/pose', Pose, botcallback)
     r = game()
     i = 0
@@ -88,9 +107,9 @@ def run():
             pts = np.array(pts)
             p = np.append(p,pts,axis = 0)
             p = np.flipud(p)
-            X,Xdot = gettraj(p)
-            #print(Xdot[0][1])
-            #print(Xdot)
+            X,Xdot,pti = gettraj(p)
+            ppathr1n0.publish(X)
+            traj_publ.publish(pti)
         print(i)
         vx = Xdot[i][0]
         vy = Xdot[i][1]

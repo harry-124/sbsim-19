@@ -72,6 +72,7 @@ add_message_files(
   dirvect.msg
   game.msg
   hw.msg
+  path.msg
   )
 
 ## Generate services in the 'srv' folder
