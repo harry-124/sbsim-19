@@ -26,26 +26,80 @@ import tf
 flag = 0
 bpose =  Pose()
 d = 0
-ball = p.ball(x = 0, y = 0)
-robot = p.robot(x = 0,y= 0,ball=ball)
+ball1n0 = p.ball(x = 0, y = 0)
+robot1n0 = p.robot(x = 0,y= 0,ball=ball1n0)
+ball1n1 = p.ball(x = 0, y = 0)
+robot1n1 = p.robot(x = 0,y= 0,ball=ball1n1)
+ball2n0 = p.ball(x = 0, y = 0)
+robot2n0 = p.robot(x = 0,y= 0,ball=ball2n0)
+ball2n1 = p.ball(x = 0, y = 0)
+robot2n1 = p.robot(x = 0,y= 0,ball=ball2n1)
+
 gs = 0
-rpath=[]
-def rpcallback(msg):
+rpath1n0=path()
+rpath1n1=path()
+rpath2n0=path()
+rpath2n1=path()
+def rp10callback(msg):
     global flag
+    global rpath1n0
     flag = 1
-    global rpath
-    rpath = msg
-
-
-def botcallback(msg):
+    global rpath1n0
+    rpath1n0 = msg
+def bot10callback(msg):
     global flag
-    global robot
-    global ball
-    robot.x = msg.position.x
-    robot.y = msg.position.y
+    global robot1n0
+    global ball1n0
+    robot1n0.x = msg.position.x
+    robot1n0.y = msg.position.y
     quat = [msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w]
     euler = tf.transformations.euler_from_quaternion(quat)
-    robot.yaw = euler[2]
+    robot1n0.yaw = euler[2]
+def rp11callback(msg):
+    global rpath1n1
+    global flag
+    flag = 1
+    global rpath1n1
+    rpath1n1 = msg
+def bot11callback(msg):
+    global flag
+    global robot1n1
+    global ball1n1
+    robot1n1.x = msg.position.x
+    robot1n1.y = msg.position.y
+    quat = [msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w]
+    euler = tf.transformations.euler_from_quaternion(quat)
+    robot1n1.yaw = euler[2]
+def rp20callback(msg):
+    global rpath2n0
+    global flag
+    flag = 1
+    global rpath2n0
+    rpath2n0 = msg
+def bot20callback(msg):
+    global flag
+    global robot2n0
+    global ball2n0
+    robot2n0.x = msg.position.x
+    robot2n0.y = msg.position.y
+    quat = [msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w]
+    euler = tf.transformations.euler_from_quaternion(quat)
+    robot2n0.yaw = euler[2]
+def rp21callback(msg):
+    global rpath2n1
+    global flag
+    flag = 1
+    global rpath2n1
+    rpath2n1 = msg
+def bot21callback(msg):
+    global flag
+    global robot2n1
+    global ball2n1
+    robot2n1.x = msg.position.x
+    robot2n1.y = msg.position.y
+    quat = [msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w]
+    euler = tf.transformations.euler_from_quaternion(quat)
+    robot2n1.yaw = euler[2]
 
 def gettraj(pts):
     beziers = fitCurve(pts,1)
@@ -87,48 +141,54 @@ def conv(rpath):
         p.append(temp)
     return p
 
-def run():
-    global robot
-    global ball
-    global d
-    global gs
+def get_traj_all(robot,rpath,ppathr,traj_publ):
     global flag
-    rospy.init_node('trajectory_gen2',anonymous=True)
-    traj_pub = rospy.Publisher('robot1n0/traj_vect',game, queue_size = 20)
-    traj_publ = rospy.Publisher('robot1n0/traj_vect_list',path, queue_size = 20)
-    ppathr1n0 = rospy.Publisher('robot1n0/path',path,queue_size = 20)
-    rospy.Subscriber('robot1n0/pose', Pose, botcallback)
-    rospy.Subscriber('robot1n0/goalpoints',path,rpcallback)
     r = game()
     i = 0
-    flag = 0
-    rate = rospy.Rate(30)
+    if len(rpath.points) > 0:
+        p = conv(rpath)
+        p.reverse()
+        a = 1
+        pts = [robot.x,robot.y]
+        p.append(pts)
+        p.reverse()
+        p=np.array(p)
+        print(p)
+        if len(p) > 1:
+            X,Xdot,pti = gettraj(p)
+            ppathr.publish(X)
+            traj_publ.publish(pti)
+
+def run():
+    rospy.init_node('trajectory_gen2',anonymous=True)
+    #traj_pub1n0 = rospy.Publisher('robot1n0/traj_vect',game, queue_size = 20)
+    traj_publ1n0 = rospy.Publisher('robot1n0/traj_vect_list',path, queue_size = 20)
+    ppathr1n0 = rospy.Publisher('robot1n0/path',path,queue_size = 20)
+    rospy.Subscriber('robot1n0/pose', Pose, bot10callback)
+    rospy.Subscriber('robot1n0/goalpoints',path,rp10callback)
+
+    #traj_pub1n1 = rospy.Publisher('robot1n1/traj_vect',game, queue_size = 20)
+    traj_publ1n1 = rospy.Publisher('robot1n1/traj_vect_list',path, queue_size = 20)
+    ppathr1n1 = rospy.Publisher('robot1n1/path',path,queue_size = 20)
+    rospy.Subscriber('robot1n1/pose', Pose, bot11callback)
+    rospy.Subscriber('robot1n1/goalpoints',path,rp11callback)
+
+    #traj_pub2n0 = rospy.Publisher('robot2n0/traj_vect',game, queue_size = 20)
+    traj_publ2n0 = rospy.Publisher('robot2n0/traj_vect_list',path, queue_size = 20)
+    ppathr2n0 = rospy.Publisher('robot2n0/path',path,queue_size = 20)
+    rospy.Subscriber('robot2n0/pose', Pose, bot20callback)
+    rospy.Subscriber('robot2n0/goalpoints',path,rp20callback)
+
+    #traj_pub2n1 = rospy.Publisher('robot2n1/traj_vect',game, queue_size = 20)
+    traj_publ2n1 = rospy.Publisher('robot2n1/traj_vect_list',path, queue_size = 20)
+    ppathr2n1 = rospy.Publisher('robot2n1/path',path,queue_size = 20)
+    rospy.Subscriber('robot2n1/pose', Pose, bot21callback)
+    rospy.Subscriber('robot2n1/goalpoints',path,rp21callback)
     while(True):
-        while(flag == 0):
-            a = 0
-        if a == 0:
-            p = conv(rpath)
-            p.reverse()
-            a = 1
-            pts = [robot.x,robot.y]
-            p.append(pts)
-            p.reverse()
-            p=np.array(p)
-            if len(p) > 1:
-                X,Xdot,pti = gettraj(p)
-                ppathr1n0.publish(X)
-                traj_publ.publish(pti)
-        if flag == 1:
-            vx = Xdot[i][0]
-            vy = Xdot[i][1]
-            r.kx = vx
-            r.ky = vy
-            r.tag = 0
-            traj_pub.publish(r)
-            i += 1            
-        rate.sleep()
-
-
+        get_traj_all(robot1n0,rpath1n0,ppathr1n0,traj_publ1n0)
+        get_traj_all(robot1n1,rpath1n1,ppathr1n1,traj_publ1n1)
+        get_traj_all(robot2n0,rpath2n0,ppathr2n0,traj_publ2n0)
+        get_traj_all(robot2n1,rpath2n1,ppathr2n1,traj_publ2n1)
 
 if __name__ == '__main__':
     run()

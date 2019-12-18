@@ -252,8 +252,8 @@ def run():
                     r10vel.kx /= 0.5*norm
                     r10vel.ky /= 0.5*norm
                     r10vel.tag = 0
-                    if mindistr10 < 1:
-                        rpath[0].pop(indexr10)
+                   # if mindistr10 < 1:
+                    #    rpath[0].pop(indexr10)
                     traj_pub_r10.publish(r10vel)
         if r11cs == 2:
             if len(rpath[1])> 0 and len(rvects[1]) > 0:
@@ -268,7 +268,7 @@ def run():
                 r11vel.kx = comp1x + comp2x
                 r11vel.ky = comp1y + comp2y
                 norm = np.sqrt(r11vel.kx**2 + r11vel.ky**2)
-                if not norm == 0
+                if not norm == 0:
                     r11vel.kx /= 0.5*norm
                     r11vel.ky /= 0.5*norm
                     r11vel.tag = 0

@@ -10,6 +10,10 @@ from sbsim.msg import game
 def getpts():
     a = input('Enter number of points')
     pts = []
+    robott = input('Enter team \n1\n2\n')
+    robotn = input('Enter bot number \n0\n1\n')
+    st = 'robot'+str(robott)+'n'+str(robotn)+'/goalpoints'
+    path_pub=rospy.Publisher(st,path,queue_size = 20)
     for i in range(a):
         x = input('Enter x value of point'+str(i))
         y = input('Enter y value of point'+str(i))
@@ -17,14 +21,11 @@ def getpts():
         single.kx = x
         single.ky = y
         pts.append(single)
-
-    return pts
+    path_pub.publish(pts)
 
 def run():
     rospy.init_node('testgoalpts',anonymous=True)
-    path_pub=rospy.Publisher('robot1n0/goalpoints',path,queue_size = 20)
-    pts=getpts()
-    path_pub.publish(pts)
+    getpts()
 
 if __name__ == '__main__':
     run()
