@@ -13,7 +13,7 @@
 <br>
 <h3>3 controller implementation</h3>
 <p>Point to point control</p>
-
+<img src="p2p.gif">
 <p>Trajectory Tracking control</p>
 <img src="traj_tracking.gif">
 <p>3 wheel independent control</p>
