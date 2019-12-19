@@ -30,8 +30,9 @@ ball = p.ball(x = 0, y = 0)
 robot = p.robot(x = 0,y= 0,ball=ball)
 gs = 0
 rpath=[]
-rpath=np.array(rpath)
 def rpcallback(msg):
+    global flag
+    flag = 1
     global rpath
     rpath = msg
 
@@ -40,7 +41,6 @@ def botcallback(msg):
     global flag
     global robot
     global ball
-    flag = 1
     robot.x = msg.position.x
     robot.y = msg.position.y
     quat = [msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w]
@@ -58,7 +58,6 @@ def gettraj(pts):
     bz = np.array(bz)
     pli = []
     for i in range(len(bz)):
-        print(bz[i])
         single = game()
         single.kx = bz[i][0]
         single.ky = bz[i][1]
@@ -71,12 +70,22 @@ def gettraj(pts):
     Xdot = Xdot.T
     pti = []
     for i in range(len(Xdot)):
-        print(bz[i])
         single = game()
         single.kx = Xdot[i][0]
         single.ky = Xdot[i][1]
         pti.append(single)
     return pathi,Xdot,pti
+
+def conv(rpath):
+    p=[]
+    temp = [0,0]
+    pt=rpath
+    for i in range(len(pt.points)):
+        s=game()
+        s=pt.points[i]
+        temp = [s.kx,s.ky]
+        p.append(temp)
+    return p
 
 def run():
     global robot
@@ -84,7 +93,7 @@ def run():
     global d
     global gs
     global flag
-    rospy.init_node('trajectory_gen',anonymous=True)
+    rospy.init_node('trajectory_gen2',anonymous=True)
     traj_pub = rospy.Publisher('robot1n0/traj_vect',game, queue_size = 20)
     traj_publ = rospy.Publisher('robot1n0/traj_vect_list',path, queue_size = 20)
     ppathr1n0 = rospy.Publisher('robot1n0/path',path,queue_size = 20)
@@ -92,29 +101,31 @@ def run():
     rospy.Subscriber('robot1n0/goalpoints',path,rpcallback)
     r = game()
     i = 0
+    flag = 0
     rate = rospy.Rate(30)
     while(True):
         while(flag == 0):
             a = 0
         if a == 0:
-            p = rpath
-            p = np.flipud(p)
+            p = conv(rpath)
+            p.reverse()
             a = 1
-            pts = [[robot.x,robot.y]]
-            pts = np.array(pts)
-            p = np.append(p,pts,axis = 0)
-            p = np.flipud(p)
-            X,Xdot,pti = gettraj(p)
-            ppathr1n0.publish(X)
-            traj_publ.publish(pti)
-        print(i)
-        vx = Xdot[i][0]
-        vy = Xdot[i][1]
-        r.kx = vx
-        r.ky = vy
-        r.tag = 0
-        traj_pub.publish(r)
-        i += 1            
+            pts = [robot.x,robot.y]
+            p.append(pts)
+            p.reverse()
+            p=np.array(p)
+            if len(p) > 1:
+                X,Xdot,pti = gettraj(p)
+                ppathr1n0.publish(X)
+                traj_publ.publish(pti)
+        if flag == 1:
+            vx = Xdot[i][0]
+            vy = Xdot[i][1]
+            r.kx = vx
+            r.ky = vy
+            r.tag = 0
+            traj_pub.publish(r)
+            i += 1            
         rate.sleep()
 
 
