@@ -237,8 +237,8 @@ def run():
     traj_pub_r20 = rospy.Publisher('robot2n0/traj_vect',game, queue_size = 20)
     traj_pub_r21 = rospy.Publisher('robot2n1/traj_vect',game, queue_size = 20)
     rate = rospy.Rate(30)
-    kpc = 0.05
-    kpv = 0.95
+    kpc = 1.0
+    kpv = 30
     while(True):
         if r10cs == 2:
             if len(rpath[0])> 0 and len(rvects[0]) > 0:
@@ -257,9 +257,14 @@ def run():
                 """
                 vectr10 = rvects[0][indexr10]
                 comp1x = findexv(indexr10,l)*kpv*vectr10[0]
-                comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)
                 comp1y = findexv(indexr10,l)*kpv*vectr10[1]
-                comp2y = kpc*findexc(indexr10,l)*(cptr10[1] - rpose[0].y)
+                if(not (cptr10[0] - rpose[0].x)==0 and not(cptr10[1] - rpose[0].y)==0):
+                    comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)**3/abs((cptr10[0] - rpose[0].x)*10)
+                    comp2y = kpc*findexc(indexr10,l)*(cptr10[1] - rpose[0].y)**3/abs((cptr10[1] - rpose[0].y)*10)
+                else:
+                    comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)
+                    comp2y = kpc*findexc(indexr10,l)*(cptr10[1] - rpose[0].y)
+
                 r10vel.kx = comp1x + comp2x
                 r10vel.ky = comp1y + comp2y
                 norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
