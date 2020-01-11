@@ -20,6 +20,11 @@ import matplotlib.pyplot as plt
 import time
 import tf
 
+"""
+program to control robot to make it stay on the trajectory
+publishes twist commands
+"""
+
 flag = 0
 bpose =  Pose()
 d = 0
@@ -240,6 +245,16 @@ def run():
                 r10vel = game()
                 l = len(rpath[0])
                 cptr10,indexr10,mindistr10 = closestpt_search(rpath[0],rpose[0])
+                """
+                cptr10 closest point on trajectory from robot
+                indexr10 index of closest point on the trajectory
+                mindistr10 distance of closest point on the trajetory
+                vectr10 tangent of trajectory curve
+                comp1x component 1 x tangential component
+                comp2x component 2 x correctional component
+                comp1y component 1 y tangential component
+                comp2y component 2 y correctional component
+                """
                 vectr10 = rvects[0][indexr10]
                 comp1x = findexv(indexr10,l)*kpv*vectr10[0]
                 comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)
