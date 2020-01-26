@@ -194,6 +194,11 @@ def r21posecallback(msg):
         rpose[3].y = msg.position.y
         rpose[3].theta = 2*m.tan(msg.orientation.z)
 
+def ballposecallback(msg):
+    global bpose
+    bpose.position.x = msg.position.x
+    bpose.position.y = msg.position.y
+
 def findexc(i,l):
     if i > l-2:
         return 5
@@ -217,6 +222,7 @@ def run():
     global rpose
     rospy.init_node('trajectory_tracking_controller',anonymous=True)
     rospy.Subscriber('robot1n0/cselect',Int32,r10selcallback)
+    rospy.Subscriber('/ballpose',Pose,ballposecallback)
     rospy.Subscriber('robot1n1/cselect',Int32,r11selcallback)
     rospy.Subscriber('robot2n0/cselect',Int32,r20selcallback)
     rospy.Subscriber('robot2n1/cselect',Int32,r21selcallback)
@@ -241,6 +247,12 @@ def run():
     kpv = 30
     while(True):
         if r10cs == 2:
+            '''
+            this section sets the point for the bot to point at(heading control)
+            '''
+            r10hp = Pose()
+            r10hp.position.x = 0
+            r10hp.position.y = 0
             if len(rpath[0])> 0 and len(rvects[0]) > 0:
                 r10vel = game()
                 l = len(rpath[0])
@@ -267,6 +279,11 @@ def run():
 
                 r10vel.kx = comp1x + comp2x
                 r10vel.ky = comp1y + comp2y
+                '''p Controller for heading'''
+                kph1 = 0.1
+                thetaset_1 = m.atan((rpose[0].y - r10hp.position.y)/(rpose[0].x - r10hp.position.x))
+                r10vel.thetad = kph1*(thetaset_1 - rpose[0].theta)
+
                 norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
                 if not norm == 0:
                     r10vel.kx /= 0.5*norm
