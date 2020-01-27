@@ -281,7 +281,8 @@ def run():
                 r10vel.ky = comp1y + comp2y
                 '''p Controller for heading'''
                 kph1 = 0.1
-                thetaset_1 = m.atan((rpose[0].y - r10hp.position.y)/(rpose[0].x - r10hp.position.x))
+                thetaset_1 = m.atan2((r10hp.position.y-rpose[0].y),(r10hp.position.x-rpose[0].x))
+                print(thetaset_1, rpose[0].theta,(thetaset_1 - rpose[0].theta))
                 r10vel.thetad = kph1*(thetaset_1 - rpose[0].theta)
 
                 norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
