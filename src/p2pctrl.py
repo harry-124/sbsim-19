@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys
 import physics as p
-import pygame as pg
 import rospy
 import math as m
 from geometry_msgs.msg import Pose, Twist
@@ -16,9 +15,15 @@ if gmsg.status == 0 bot is stationary
 if gmsg.status == 1 bot moves to location in gmsg
 if gmsg.status == 2 ball kicked at target location
 
+
+if rxycs == 1 p2p control pass
+if rxycs == 2 trajectory command bypass
+if rxycs == 3 extremal control
 """
+
 flag=0
 ctrl=game()
+traj_ctrl = game()
 ctrl.kick=0
 ball = p.ball(x = 0,y = 0)
 bpose = Pose()
@@ -29,6 +34,10 @@ r10msg = goalmsg()
 r11msg = goalmsg()
 r20msg = goalmsg()
 r21msg = goalmsg() 
+r10cs = 1
+r11cs = 1
+r20cs = 1
+r21cs = 1
 r1f = 1
 r2f = 1
 r3f =1
@@ -39,7 +48,7 @@ gs = 0
 r1=[]
 r2=[]
 
-pid_ctrl= rospy.Publisher('pid/ctrl',game, queue_size=10)
+pid_ctrl= rospy.Publisher('ctrl',game, queue_size=10)
 
 def dribcallback(msg): 
     global r1
@@ -119,6 +128,53 @@ def pid(xtg,ytg,bot,thtg=0):
     ctrl.tag=tag
     pid_ctrl.publish(ctrl)
 
+def r10tcallback(msg):
+    global r10cs
+    global pid_ctrl
+    if r10cs == 2:
+        pid_ctrl.publish(msg)
+    return 0
+
+def r11tcallback(msg):
+    global r11cs
+    global pid_ctrl
+    if r11cs == 2:
+        pid_ctrl.publish(msg)
+    return 0
+
+def r20tcallback(msg):
+    global r20cs
+    global pid_ctrl
+    if r20cs == 2:
+        pid_ctrl.publish(msg)
+    return 0
+
+def r21tcallback(msg):
+    global r21cs
+    global pid_ctrl
+    if r21cs == 2:
+        pid_ctrl.publish(msg)
+    return 0
+
+def r10selcallback(msg):
+    global r10cs
+    r10cs = msg.data
+    return 0
+
+def r11selcallback(msg):
+    global r11cs
+    r11cs = msg.data
+    return 0
+
+def r20selcallback(msg):
+    global r20cs
+    r20cs = msg.data
+    return 0
+
+def r21selcallback(msg):
+    global r21cs
+    r21cs = msg.data
+    return 0
 
 def balltwistcallback(msg):
     global ball
@@ -197,10 +253,11 @@ def r10twistcallback(msg):
     global r1
     global tag
     global gs
+    global r10cs
     tag=0
     rtwist[0]=msg
     updatertwist(rtwist[0],r1[0])
-    if(gs==0):
+    if(gs==0 and r10cs == 1):
         control(r10msg,r1[0],ball)
 
 def r11twistcallback(msg):
@@ -208,10 +265,11 @@ def r11twistcallback(msg):
     global r1
     global tag
     global gs
+    global r11cs
     tag=1
     rtwist[0]=msg
     updatertwist(rtwist[1],r1[1])
-    if(gs==0):
+    if(gs==0 and r11cs == 1):
         control(r11msg,r1[1],ball)
 
 def r20twistcallback(msg):
@@ -219,10 +277,11 @@ def r20twistcallback(msg):
     global r2
     global tag
     global gs
+    global r20cs
     tag=2
     rtwist[0]=msg
     updatertwist(rtwist[2],r2[0])
-    if(gs==0):
+    if(gs==0 and r20cs == 1):
         control(r20msg,r2[0],ball)
 
 def r21twistcallback(msg):
@@ -230,10 +289,11 @@ def r21twistcallback(msg):
     global r2
     global tag
     global gs   
+    global r21cs
     tag=3
     rtwist[0]=msg
     updatertwist(rtwist[3],r2[1])
-    if(gs==0):
+    if(gs==0 and r21cs == 1):
         control(r21msg,r2[1],ball)
 
 def updaterpose(a,b):
@@ -268,10 +328,14 @@ def control(gmsg,robot,ball):
 def run():
     rospy.Subscriber('game/status',Int32,rulecheck)
     rospy.Subscriber('game/dribbler',Int32,dribcallback)
-    rospy.Subscriber('robot1n0/ptg',goalmsg,r10callback)
-    rospy.Subscriber('robot1n1/ptg',goalmsg,r11callback)
-    rospy.Subscriber('robot2n0/ptg',goalmsg,r20callback)
-    rospy.Subscriber('robot2n1/ptg',goalmsg,r21callback)
+    rospy.Subscriber('robot1n0/ptg',goalmsg,r10callback) # for native to node p2p control
+    rospy.Subscriber('robot1n1/ptg',goalmsg,r11callback) # for native to node p2p control
+    rospy.Subscriber('robot2n0/ptg',goalmsg,r20callback) # for native to node p2p control
+    rospy.Subscriber('robot2n1/ptg',goalmsg,r21callback) # for native to node p2p control
+    rospy.Subscriber('robot1n0/traj_vect',game,r10tcallback) # for the trajectory node bypass
+    rospy.Subscriber('robot1n1/traj_vect',game,r11tcallback) # for the trajectory node bypass
+    rospy.Subscriber('robot2n0/traj_vect',game,r20tcallback) # for the trajectory node bypass
+    rospy.Subscriber('robot2n1/traj_vect',game,r21tcallback) # for the trajectory node bypass
     rospy.Subscriber('ballpose', Pose,ballposecallback)
     rospy.Subscriber('balltwist',Twist,balltwistcallback)
     rospy.Subscriber('robot1n0/pose',Pose,r10posecallback)
@@ -282,10 +346,14 @@ def run():
     rospy.Subscriber('robot1n1/twist',Twist,r11twistcallback)
     rospy.Subscriber('robot2n0/twist',Twist,r20twistcallback)
     rospy.Subscriber('robot2n1/twist',Twist,r21twistcallback)
+    rospy.Subscriber('robot1n0/cselect',Int32,r10selcallback)
+    rospy.Subscriber('robot1n1/cselect',Int32,r11selcallback)
+    rospy.Subscriber('robot2n0/cselect',Int32,r20selcallback)
+    rospy.Subscriber('robot2n1/cselect',Int32,r21selcallback)
     rospy.spin()
 
 if __name__ == '__main__':
-    rospy.init_node('Control', anonymous=True)
+    rospy.init_node('p2p', anonymous=True)
     r1.append(p.robot(x= 0.0,y=0.0, yaw  = 0, ball = ball))
     r1.append(p.robot(x= 0.0,y= 0.0, yaw  = 0, ball = ball))
     r2.append(p.robot(x= 0.0,y=0.0, yaw  = 3.14, ball = ball))
